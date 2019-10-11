@@ -1,7 +1,11 @@
 import numpy as np
 from CubeState import*
+import time
 
-A=R2*F2*R2*U2*R2*F2*R2*U2
-B=Rp*L*F2*R*Lp*U2
-C=R2
-print(A*A*A)
+
+
+
+scramble  =  "R' U' F L2 F2 R2 D' L2 D' F2 D2 U L' F' L2 B2 U2 B L' B U L' R' U' F"
+
+scramble_state = CubeState(alg_str=scramble)
+print(scramble_state)
