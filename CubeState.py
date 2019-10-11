@@ -1,9 +1,13 @@
 import numpy as np
 
+CP0 = np.array([0, 1, 2, 3, 4, 5, 6, 7])
+CO0 = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+EP0 = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+EO0 = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
 class CubeState:
 
-    def __init__(self, CP, CO, EP, EO):
+    def __init__(self, CP=CP0, CO=CO0, EP=EP0, EO=EO0):
         assert np.shape(CP)==(8,),  "Vérifiez le format de CP."
         assert np.shape(CO)==(8,),  "Vérifiez le format de CO."
         assert np.shape(EP)==(12,), "Vérifiez le format de EP."
@@ -12,6 +16,22 @@ class CubeState:
         self.CO = CO
         self.EP = EP
         self.EO = EO
+
+    def i(self):
+        # Calcul de l'inverse. Retourne un objet CubeState tel que self*self.i()=solved
+        CP  =  np.arange(8)
+        CO  =  np.zeros(8)
+        EP  =  np.arange(12)
+        EO  =  np.zeros(12)
+
+        for i, p in enumerate(self.CP):
+            CP[p] = i
+        for i, p in enumerate(self.EP):
+            EP[p] = i
+
+        CO  =  np.remainder(-self.CO[CP], 3)
+        EO  =  np.remainder(-self.EO[EP], 2)
+        return CubeState(CP, CO, EP, EO)
 
     def __mul__(self, other):
         assert other.__class__ is CubeState, "Vous essayez de multiplier nimp"
@@ -24,13 +44,12 @@ class CubeState:
         return CubeState(CP, CO, EP, EO)
 
     def __str__(self):
-        return "CP =" + self.CP.__str__() + "\n" + \
-               "CO =" + self.CO.__str__() + "\n" + \
-               "EP =" + self.EP.__str__() + "\n" + \
-               "EO =" + self.EO.__str__() + "\n"
+        return "CP= " + self.CP.__str__() + "\n" + \
+               "CO= " + self.CO.__str__() + "\n" + \
+               "EP= " + self.EP.__str__() + "\n" + \
+               "EO= " + self.EO.__str__() + "\n"
 
 # Définition des mouvements autorisés du Cube
-
 # Définition de R, R', R2
 CP = np.array([0, 2, 6, 3, 4, 1, 5, 7])
 CO = np.array([0, 1, 2, 0, 0, 2, 1, 0])
@@ -66,7 +85,7 @@ F4 = Fp*F
 
 # Définition de L, L', L2
 CP = np.array([4, 1, 2, 0, 7, 5, 6, 3])
-CO = np.array([2, 0, 0, 1, 2, 0, 0, 1])
+CO = np.array([2, 0, 0, 1, 1, 0, 0, 2])
 EP = np.array([0, 1, 2, 4, 11, 5, 6, 3, 8, 9, 10, 7])
 EO = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
