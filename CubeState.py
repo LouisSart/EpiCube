@@ -70,11 +70,9 @@ class CubeState:
                     n_edge_translations+=1
                     checked_edges += [i]
                     i=self.EP[i]
-                    print(checked_edges, n_edge_translations)
 
         if not (-1)**(n_corner_translations+n_edge_translations)==1 : return False
         return True
-
 
     def applyAlg(self, alg_str):
 
@@ -83,7 +81,6 @@ class CubeState:
         for move in alg:
             self *= all_moves[move]
         return self
-
 
     def __mul__(self, other):
         assert other.__class__ is CubeState, "Vous essayez de multiplier nimp"
