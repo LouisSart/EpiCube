@@ -7,5 +7,5 @@ import time
 
 scramble  =  "R' U' F L2 F2 R2 D' L2 D' F2 D2 U L' F' L2 B2 U2 B L' B U L' R' U' F"
 
-scramble_state = CubeState(alg_str=scramble)
-print(scramble_state)
+scramble_state = CubeState().applyAlg(scramble)
+print("S =\n", scramble_state, "S^-1 = \n", scramble_state.I)
