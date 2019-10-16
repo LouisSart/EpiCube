@@ -35,6 +35,47 @@ class CubeState:
         EO  =  np.remainder(-self.EO[EP], 2)
         return CubeState((CP, CO, EP, EO))
 
+    def isSolvable(self):
+
+        if not np.remainder(np.sum(self.EO),2)==0: return False
+        if not np.remainder(np.sum(self.CO),3)==0: return False
+
+        checked_corners=[]
+        k=0
+        n_corner_translations=0
+        while len(checked_corners) < 8:
+            if self.CP[k] in checked_corners :
+                k+=1
+            else:
+                cycle_start=k
+                i=self.CP[k]
+                checked_corners += [k]
+                while not i==cycle_start:
+                    n_corner_translations+=1
+                    checked_corners += [i]
+                    i=self.CP[i]
+
+
+        checked_edges=[]
+        k=0
+        n_edge_translations=0
+        while len(checked_edges) < 12:
+            if self.EP[k] in checked_edges :
+                k+=1
+            else:
+                cycle_start=k
+                i=self.EP[k]
+                checked_edges += [k]
+                while not i==cycle_start:
+                    n_edge_translations+=1
+                    checked_edges += [i]
+                    i=self.EP[i]
+                    print(checked_edges, n_edge_translations)
+
+        if not (-1)**(n_corner_translations+n_edge_translations)==1 : return False
+        return True
+
+
     def applyAlg(self, alg_str):
 
         alg=alg_str.split(" ")
@@ -42,6 +83,7 @@ class CubeState:
         for move in alg:
             self *= all_moves[move]
         return self
+
 
     def __mul__(self, other):
         assert other.__class__ is CubeState, "Vous essayez de multiplier nimp"
