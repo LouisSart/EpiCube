@@ -18,6 +18,7 @@ class CubeState:
         self.EP = EP
         self.EO = EO
 
+
     @property
     def I(self):
         # Calcul de l'inverse. Retourne un objet CubeState tel que self*self.i()=solved
@@ -75,12 +76,12 @@ class CubeState:
         return True
 
     def applyAlg(self, alg_str):
-
+        move_counter = 0
         alg=alg_str.split(" ")
-
         for move in alg:
+            move_counter+=1
             self *= all_moves[move]
-        return self
+        return self, move_counter
 
     def __mul__(self, other):
         assert other.__class__ is CubeState, "Vous essayez de multiplier nimp"
