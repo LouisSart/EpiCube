@@ -1,13 +1,11 @@
 import numpy as np
 
-
 class CubeState:
 
     def __init__(self, state_arrays=(np.array([0, 1, 2, 3, 4, 5, 6, 7]),
-                                     np.array([0, 0, 0, 0, 0, 0, 0, 0]),
-                                     np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
-                                     np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))):
-
+        np.array([0, 0, 0, 0, 0, 0, 0, 0]),
+        np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
+        np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))):
         (CP,CO,EP,EO)=state_arrays
         assert np.shape(CP)==(8,),  "Vérifiez le format de CP."
         assert np.shape(CO)==(8,),  "Vérifiez le format de CO."
@@ -17,6 +15,22 @@ class CubeState:
         self.CO = CO
         self.EP = EP
         self.EO = EO
+
+    def tofile(self, f):
+        assert not f.closed
+        assert f.mode[0] == 'a'
+        self.CP.tofile(f)
+        self.CO.tofile(f)
+        self.EP.tofile(f)
+        self.EO.tofile(f)
+
+    def fromfile(self, f):
+        assert not f.closed
+        assert f.mode[0] == 'r'
+        self.CP = np.fromfile(f, dtype=int, count=8)
+        self.CO = np.fromfile(f, dtype=int, count=8)
+        self.EP = np.fromfile(f, dtype=int, count=12)
+        self.EO = np.fromfile(f, dtype=int, count=12)
 
     @property
     def I(self):
@@ -74,13 +88,22 @@ class CubeState:
         if not (-1)**(n_corner_translations+n_edge_translations)==1 : return False
         return True
 
-    def applyAlg(self, alg_str):
-
-        alg=alg_str.split(" ")
-
-        for move in alg:
-            self *= all_moves[move]
+    def applyAlg(self, alg):
+        for move_int in alg:
+            self *= all_moves[move_int]
         return self
+
+    def mult(self, other):
+        ''' Multiplication en place. Mêmes performances que l'autre... '''
+        assert other.__class__ is CubeState, "Vous essayez de multiplier nimp"
+
+        self.CP   =  self.CP[other.CP]
+        self.CO   =  np.remainder(self.CO[other.CP] + other.CO, 3)
+        self.EP   =  self.EP[other.EP]
+        self.EO   =  np.remainder(self.EO[other.EP] + other.EO, 2)
+
+    def copy(self):
+        return CubeState(self.CP, self.CO, self.EP, self.EO)
 
     def __mul__(self, other):
         assert other.__class__ is CubeState, "Vous essayez de multiplier nimp"
@@ -93,10 +116,10 @@ class CubeState:
         return CubeState((CP, CO, EP, EO))
 
     def __str__(self):
-        return "CP= " + self.CP.__str__() + "\n" + \
-               "CO= " + self.CO.__str__() + "\n" + \
-               "EP= " + self.EP.__str__() + "\n" + \
-               "EO= " + self.EO.__str__() + "\n"
+        return "CP = " + self.CP.__str__() + "\n" + \
+               "CO = " + self.CO.__str__() + "\n" + \
+               "EP = " + self.EP.__str__() + "\n" + \
+               "EO = " + self.EO.__str__() + "\n"
 
 # Définition des mouvements autorisés du Cube
 # Définition de R, R', R2
@@ -107,7 +130,6 @@ R  = CubeState((np.array([0, 2, 6, 3, 4, 1, 5, 7]),
                 np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])))
 R2 = R*R
 Rp = R2*R
-R4 = Rp*R
 
 # Définition de U, U', U2
 
@@ -117,7 +139,6 @@ U  = CubeState((np.array([0, 1, 2, 3, 5, 6, 7, 4]),
                 np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])))
 U2 = U*U
 Up = U2*U
-U4 = Up*U
 
 # Définition de F, F', F2
 
@@ -127,7 +148,6 @@ F  = CubeState((np.array([1, 5, 2, 3, 0, 4, 6, 7]),
                 np.array([1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0])))
 F2 = F*F
 Fp = F2*F
-F4 = Fp*F
 
 # Définition de L, L', L2
 
@@ -137,7 +157,6 @@ L  = CubeState((np.array([4, 1, 2, 0, 7, 5, 6, 3]),
                 np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])))
 L2 = L*L
 Lp = L2*L
-L4 = Lp*L
 
 # Définition de D, D', D2
 
@@ -147,7 +166,6 @@ D  = CubeState((np.array([3, 0, 1, 2, 4, 5, 6, 7]),
                 np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])))
 D2 = D*D
 Dp = D2*D
-D4 = Dp*D
 
 # Définition de B, B', B2
 
@@ -157,6 +175,5 @@ B  = CubeState((np.array([0, 1, 3, 7, 4, 5, 2, 6]),
                 np.array([0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0])))
 B2 = B*B
 Bp = B2*B
-B4 = Bp*B
 
-all_moves  = {"R":R,"R'":Rp,"R2":R2,"U":U,"U'":Up,"U2":U2,"L":L,"L'":Lp,"L2":L2,"F":F,"F'":Fp,"F2":F2,"B":B,"B'":Bp,"B2":B2,"D":D,"D'":Dp,"D2":D2}
+all_moves  = {1:R,2:Rp,3:R2,4:U,5:Up,6:U2,7:L,8:Lp,9:L2,10:F,11:Fp,12:F2,13:B,14:Bp,15:B2,16:D,17:Dp,18:D2}
