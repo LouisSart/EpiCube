@@ -5,14 +5,18 @@ move_int_to_str  = {1:"R",2:"R'",3:"R2",4:"U",5:"U'",6:"U2",7:"L",8:"L'",9:"L2",
 
 class Algorithm:
 
-    def __init__(self, str=None):
+    def __init__(self, arg=None):
         self.moves = []
-        if str is not None:
-            move_str_list = str.split(" ")
-            self.moves = [0]*len(move_str_list)
-            for i, move_str in enumerate(move_str_list):
-                n = move_str_to_int[move_str]
-                self.moves[i] = n
+        if arg is not None:
+            if arg.__class__ == str:
+                move_str_list = arg.split(" ")
+                self.moves = [0]*len(move_str_list)
+                for i, move_str in enumerate(move_str_list):
+                    n = move_str_to_int[move_str]
+                    self.moves[i] = n
+            elif arg.__class__==list:
+                self.moves = arg
+
 
     def tofile(self, f):
         assert f.mode[0] == "a"
