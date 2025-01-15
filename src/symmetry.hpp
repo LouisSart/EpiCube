@@ -1,7 +1,7 @@
 #pragma once
-#include <array>    // move_conj_table
-#include <cassert>  // make sure arguments are correct
-#include <tuple>    // symmetry components
+#include <array>   // move_conj_table
+#include <cassert> // make sure arguments are correct
+#include <tuple>   // symmetry components
 
 #include "algorithm.hpp"
 
@@ -14,39 +14,39 @@ constexpr unsigned N_ELEM_SYM = 4;
 
 unsigned symmetry_index(const unsigned c_surf, const unsigned c_y,
                         const unsigned c_z2, const unsigned c_lr) {
-    // Assign a unique index to each combination of symmetries
+  // Assign a unique index to each combination of symmetries
 
-    assert(c_surf < N_SURF);
-    assert(c_y < N_Y);
-    assert(c_z2 < N_Z2);
-    assert(c_lr < N_LR);
+  assert(c_surf < N_SURF);
+  assert(c_y < N_Y);
+  assert(c_z2 < N_Z2);
+  assert(c_lr < N_LR);
 
-    unsigned coord = c_lr + N_LR * (c_z2 + N_Z2 * (c_y + N_Y * (c_surf)));
+  unsigned coord = c_lr + N_LR * (c_z2 + N_Z2 * (c_y + N_Y * (c_surf)));
 
-    assert(coord < N_SYM);
-    return coord;
+  assert(coord < N_SYM);
+  return coord;
 }
 
 constexpr auto symmetry_index_to_num(const unsigned index) {
-    // Retrieve the symmetry components from the given index
+  // Retrieve the symmetry components from the given index
 
-    assert(index < N_SYM);
+  assert(index < N_SYM);
 
-    unsigned div = index;
-    unsigned c_lr = div % N_LR;
-    div = div / N_LR;
-    unsigned c_z2 = div % N_Z2;
-    div = div / N_Z2;
-    unsigned c_y = div % N_Y;
-    div = div / N_Y;
-    unsigned c_surf = div;
+  unsigned div = index;
+  unsigned c_lr = div % N_LR;
+  div = div / N_LR;
+  unsigned c_z2 = div % N_Z2;
+  div = div / N_Z2;
+  unsigned c_y = div % N_Y;
+  div = div / N_Y;
+  unsigned c_surf = div;
 
-    assert(c_surf < N_SURF);
-    assert(c_y < N_Y);
-    assert(c_z2 < N_Z2);
-    assert(c_lr < N_LR);
+  assert(c_surf < N_SURF);
+  assert(c_y < N_Y);
+  assert(c_z2 < N_Z2);
+  assert(c_lr < N_LR);
 
-    return std::make_tuple(c_surf, c_y, c_z2, c_lr);
+  return std::make_tuple(c_surf, c_y, c_z2, c_lr);
 }
 
 // Let c be a given permutation of the cube
@@ -90,51 +90,51 @@ constexpr Move LR_mirror_move_conj[N_HTM_MOVES] = {
     [R] = L3, [R2] = L2, [R3] = L, [L] = R3, [L2] = R2, [L3] = R,
     [F] = F3, [F2] = F2, [F3] = F, [B] = B3, [B2] = B2, [B3] = B};
 
-constexpr void permute_moves(Move* mp1, const Move* mp2) {
-    // Perform mp2 o mp1
+constexpr void permute_moves(Move *mp1, const Move *mp2) {
+  // Perform mp2 o mp1
 
-    Move new_mp[N_HTM_MOVES];
-    for (Move m : HTM_Moves) {
-        new_mp[m] = mp2[mp1[m]];
-    };
+  Move new_mp[N_HTM_MOVES];
+  for (Move m : HTM_Moves) {
+    new_mp[m] = mp2[mp1[m]];
+  };
 
-    for (Move m : HTM_Moves) {
-        mp1[m] = new_mp[m];
-    }
+  for (Move m : HTM_Moves) {
+    mp1[m] = new_mp[m];
+  }
 }
 
-constexpr auto get_move_permutation(const unsigned& sym_index) {
-    std::array<Move, N_HTM_MOVES> ret = {U, U2, U3, D, D2, D3, R, R2, R3,
-                                         L, L2, L3, F, F2, F3, B, B2, B3};
-    auto [c_surf, c_y, c_z2, c_lr] = symmetry_index_to_num(sym_index);
+constexpr auto get_move_permutation(const unsigned &sym_index) {
+  std::array<Move, N_HTM_MOVES> ret = {U, U2, U3, D, D2, D3, R, R2, R3,
+                                       L, L2, L3, F, F2, F3, B, B2, B3};
+  auto [c_surf, c_y, c_z2, c_lr] = symmetry_index_to_num(sym_index);
 
-    for (unsigned k_lr = 0; k_lr < c_lr; ++k_lr) {
-        permute_moves(ret.data(), LR_mirror_move_conj);
-    }
-    for (unsigned k_z2 = 0; k_z2 < c_z2; ++k_z2) {
-        permute_moves(ret.data(), z2_move_conj);
-    }
-    for (unsigned k_y = 0; k_y < c_y; ++k_y) {
-        permute_moves(ret.data(), y_move_conj);
-    }
-    for (unsigned k_surf = 0; k_surf < c_surf; ++k_surf) {
-        permute_moves(ret.data(), S_URF_move_conj);
-    }
+  for (unsigned k_lr = 0; k_lr < c_lr; ++k_lr) {
+    permute_moves(ret.data(), LR_mirror_move_conj);
+  }
+  for (unsigned k_z2 = 0; k_z2 < c_z2; ++k_z2) {
+    permute_moves(ret.data(), z2_move_conj);
+  }
+  for (unsigned k_y = 0; k_y < c_y; ++k_y) {
+    permute_moves(ret.data(), y_move_conj);
+  }
+  for (unsigned k_surf = 0; k_surf < c_surf; ++k_surf) {
+    permute_moves(ret.data(), S_URF_move_conj);
+  }
 
-    return ret;
+  return ret;
 }
 
 constexpr auto move_conj_table = [] {
-    std::array<Move, N_SYM* N_HTM_MOVES> ret = {};
-    for (unsigned s = 0; s < N_SYM; ++s) {
-        for (Move m : HTM_Moves) {
-            auto move_perm = get_move_permutation(s);
-            ret[s * N_HTM_MOVES + m] = move_perm[m];
-        }
+  std::array<Move, N_SYM *N_HTM_MOVES> ret = {};
+  for (unsigned s = 0; s < N_SYM; ++s) {
+    for (Move m : HTM_Moves) {
+      auto move_perm = get_move_permutation(s);
+      ret[s * N_HTM_MOVES + m] = move_perm[m];
     }
-    return ret;
+  }
+  return ret;
 }();
 
-Move move_conj(const Move& m, const unsigned& s) {
-    return move_conj_table[s * N_HTM_MOVES + m];
+Move move_conj(const Move &m, const unsigned &s) {
+  return move_conj_table[s * N_HTM_MOVES + m];
 }
