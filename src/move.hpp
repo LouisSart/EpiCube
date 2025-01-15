@@ -3,6 +3,7 @@
 #include <iostream>      // std::cout << Move
 #include <sstream>       // std::string
 #include <unordered_map> // map move to str
+#include <vector>        // vectors of moves
 
 enum Move { U, U2, U3, D, D2, D3, R, R2, R3, L, L2, L3, F, F2, F3, B, B2, B3 };
 

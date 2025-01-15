@@ -1,4 +1,8 @@
 #pragma once
+
+#include <array>
+#include <sstream> // std::string
+
 constexpr unsigned NC = 8, NE = 12;
 using Cubie = unsigned;
 using Orientation = unsigned;
