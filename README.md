@@ -1,2 +1,3 @@
 # EpiCube
-Un code pour tester des idées et s'exercer en python
+
+A Rubik's Cube c++ library for manipulating cubes on the cubie level
