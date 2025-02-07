@@ -11,11 +11,11 @@ struct Algorithm {
   bool inv_flag;
 
   Algorithm(const bool is_on_inverse = false) : inv_flag{is_on_inverse} {};
-  Algorithm(const std::initializer_list<Move> s,
-            const bool is_on_inverse = false)
-      : sequence{s}, inv_flag{is_on_inverse} {};
-  Algorithm(const std::vector<Move> &s, const bool is_on_inverse = false)
-      : sequence{s}, inv_flag{is_on_inverse} {};
+  // Algorithm(const std::initializer_list<Move> s,
+  //           const bool is_on_inverse = false)
+  //     : sequence{s}, inv_flag{is_on_inverse} {};
+  // Algorithm(const std::vector<Move> &s, const bool is_on_inverse = false)
+  //     : sequence{s}, inv_flag{is_on_inverse} {};
   Algorithm(const std::string &str, const bool is_on_inverse = false)
       : inv_flag{is_on_inverse} {
     *this = Algorithm::make_from_str(str);
@@ -27,6 +27,7 @@ struct Algorithm {
     std::string move_str;
     s >> move_str;
     while (s) {
+      std::cout << move_str << std::endl;
       if (str_to_move.find(move_str) != str_to_move.end()) {
         ret.append(str_to_move[move_str]);
       } else {
@@ -90,7 +91,7 @@ struct StepAlgorithm : Algorithm {
   StepAlgorithm(Algorithm m, std::string c) : Algorithm{m}, comment{c} {}
 
   void show(unsigned previous_moves = 0) const {
-    std::cout << sequence << "// " << comment << " (" << size() << "/"
+    std::cout << *this << "// " << comment << " (" << size() << "/"
               << size() + previous_moves << ")" << std::endl;
   }
 };

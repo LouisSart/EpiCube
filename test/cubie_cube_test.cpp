@@ -4,11 +4,11 @@
 
 #include "algorithm.hpp"
 
-auto no_effect = Algorithm({R, U, R3, F3, U2, L3, U3, L, F, U2});
-auto Tperm = Algorithm({R, U, R3, U3, R3, F, R2, U3, R3, U3, R, U, R3, F3});
-auto corner_3_cycle = Algorithm({R, U, R3, D, R, U3, R3, D3});
-auto edge_3_cycle = Algorithm({R, L3, U2, R3, L, F2});
-auto random_moves = Algorithm({R, F3, U, D3, U, R, B3, U3, R3, D3, F2, L2});
+auto no_effect = Algorithm("R U R' F' U2 L' U' L F U2");
+auto Tperm = Algorithm("R U R' U' R' F R2 U' R' U' R U R' F'");
+auto corner_3_cycle = Algorithm("R U R' D R U' R' D'");
+auto edge_3_cycle = Algorithm("R L' U2 R' L F2");
+auto random_moves = Algorithm("R F' U D' U R B' U' R' D' F2 L2");
 
 void test_move_apply() {
   auto cube = CubieCube();
@@ -29,7 +29,7 @@ void test_move_apply() {
   assert(cube.is_solved());
 
   CubieCube cube_check;
-  cube.apply(Algorithm{U, R, F, L, B, D});
+  cube.apply(Algorithm("U R F L B D"));
   cube_check.apply(U);
   cube_check.apply(R);
   cube_check.apply(F);
@@ -94,9 +94,6 @@ void test_inverse() {
   inverse.inverse();
   cube.apply(inverse);
   assert(cube.is_solved());
-
-  auto inv_alg = Algorithm({R3, U3, F}, true);
-  inv_alg.show();
 }
 
 void test_conjugation() {
