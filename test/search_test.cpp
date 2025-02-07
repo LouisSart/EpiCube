@@ -15,7 +15,7 @@ unsigned estimate(const CubieCube &cube) {
 
 int main() {
   auto state = CubieCube();
-  state.apply({"R' U' F"});
+  state.apply(Algorithm("R' U' F"));
   auto root = make_root(state);
 
   auto solutions = IDAstar(root, apply, estimate, is_solved, 3);
