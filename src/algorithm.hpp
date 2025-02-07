@@ -71,7 +71,7 @@ std::ostream &operator<<(std::ostream &os, const Algorithm &alg) {
     os << move << " ";
   }
   if (alg.inv_flag)
-    os << "\b)";
+    os << "\b) ";
   return os;
 }
 
@@ -81,33 +81,34 @@ void Algorithm::show() const {
     std::cout << "(" << size() << ")" << std::endl;
 }
 
-// struct StepAlgorithm : Algorithm {
-//   std::string comment;
+struct StepAlgorithm : Algorithm {
+  std::string comment;
 
-//   StepAlgorithm() {}
-//   StepAlgorithm(Algorithm m, std::string c) : Algorithm{m}, comment{c} {}
+  StepAlgorithm() {}
+  StepAlgorithm(std::string str, std::string c = "")
+      : Algorithm{str}, comment{c} {}
 
-//   void show(unsigned previous_moves = 0) const {
-//     std::cout << *this << "// " << comment << " (" << size() << "/"
-//               << size() + previous_moves << ")" << std::endl;
-//   }
-// };
+  void show(unsigned previous_moves = 0) const {
+    std::cout << *this << "// " << comment << " (" << size() << "/"
+              << size() + previous_moves << ")" << std::endl;
+  }
+};
 
-// struct Skeleton : std::vector<StepAlgorithm> {
-//   void show() const {
-//     unsigned moves_made = 0;
-//     for (auto step : *this) {
-//       step.show(moves_made);
-//       moves_made += step.size();
-//     }
-//   }
-// };
+struct Skeleton : std::vector<StepAlgorithm> {
+  void show() const {
+    unsigned moves_made = 0;
+    for (auto step : *this) {
+      step.show(moves_made);
+      moves_made += step.size();
+    }
+  }
+};
 
-// Algorithm Algorithm::get_inverse() const {
-//   auto ret = *this;
-//   std::reverse(ret.sequence.begin(), ret.sequence.end());
-//   for (auto &m : ret.sequence) {
-//     m = inverse_of_HTM_Moves[m];
-//   }
-//   return ret;
-// }
+Algorithm Algorithm::get_inverse() const {
+  auto ret = *this;
+  std::reverse(ret.sequence.begin(), ret.sequence.end());
+  for (auto &m : ret.sequence) {
+    m = inverse_of_HTM_Moves[m];
+  }
+  return ret;
+}
