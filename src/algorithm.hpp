@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm> // std::reverse
+#include <cassert>   // assert
 #include <iostream>  // std::cout
 #include <sstream>   // std::stringstream
 #include <vector>    // Move sequence
@@ -10,33 +11,29 @@ struct Algorithm {
   std::vector<Move> sequence;
   bool inv_flag;
 
-  Algorithm(const bool is_on_inverse = false) : inv_flag{is_on_inverse} {};
-  // Algorithm(const std::initializer_list<Move> s,
-  //           const bool is_on_inverse = false)
-  //     : sequence{s}, inv_flag{is_on_inverse} {};
-  // Algorithm(const std::vector<Move> &s, const bool is_on_inverse = false)
-  //     : sequence{s}, inv_flag{is_on_inverse} {};
-  Algorithm(const std::string &str, const bool is_on_inverse = false)
-      : inv_flag{is_on_inverse} {
-    *this = Algorithm::make_from_str(str);
-  };
+  Algorithm() : inv_flag{false} {};
+  Algorithm(std::string str) : inv_flag{false} {
 
-  static Algorithm make_from_str(const std::string &str) {
-    Algorithm ret;
+    if (str[0] == '(') { // Turn on inverse flag if alg starts with '('
+      assert(str.back() == ')');
+      inv_flag = true;
+      str = std::string(str.begin() + 1, str.end() - 1);
+    }
+
     std::stringstream s(str);
     std::string move_str;
-    s >> move_str;
-    while (s) {
-      std::cout << move_str << std::endl;
+    while (s >> move_str) {
+      // Run through the string and add the moves to the sequence
       if (str_to_move.find(move_str) != str_to_move.end()) {
-        ret.append(str_to_move[move_str]);
+        append(str_to_move[move_str]);
       } else {
+        // Raise error if character is no a move
+        // Missing blank space between moves
+        // will result in an error
         std::cout << "Error reading scramble" << std::endl;
         abort();
       }
-      s >> move_str;
     }
-    return ret;
   }
 
   void append(const Algorithm &other) {
@@ -84,33 +81,33 @@ void Algorithm::show() const {
     std::cout << "(" << size() << ")" << std::endl;
 }
 
-struct StepAlgorithm : Algorithm {
-  std::string comment;
+// struct StepAlgorithm : Algorithm {
+//   std::string comment;
 
-  StepAlgorithm() {}
-  StepAlgorithm(Algorithm m, std::string c) : Algorithm{m}, comment{c} {}
+//   StepAlgorithm() {}
+//   StepAlgorithm(Algorithm m, std::string c) : Algorithm{m}, comment{c} {}
 
-  void show(unsigned previous_moves = 0) const {
-    std::cout << *this << "// " << comment << " (" << size() << "/"
-              << size() + previous_moves << ")" << std::endl;
-  }
-};
+//   void show(unsigned previous_moves = 0) const {
+//     std::cout << *this << "// " << comment << " (" << size() << "/"
+//               << size() + previous_moves << ")" << std::endl;
+//   }
+// };
 
-struct Skeleton : std::vector<StepAlgorithm> {
-  void show() const {
-    unsigned moves_made = 0;
-    for (auto step : *this) {
-      step.show(moves_made);
-      moves_made += step.size();
-    }
-  }
-};
+// struct Skeleton : std::vector<StepAlgorithm> {
+//   void show() const {
+//     unsigned moves_made = 0;
+//     for (auto step : *this) {
+//       step.show(moves_made);
+//       moves_made += step.size();
+//     }
+//   }
+// };
 
-Algorithm Algorithm::get_inverse() const {
-  auto ret = *this;
-  std::reverse(ret.sequence.begin(), ret.sequence.end());
-  for (auto &m : ret.sequence) {
-    m = inverse_of_HTM_Moves[m];
-  }
-  return ret;
-}
+// Algorithm Algorithm::get_inverse() const {
+//   auto ret = *this;
+//   std::reverse(ret.sequence.begin(), ret.sequence.end());
+//   for (auto &m : ret.sequence) {
+//     m = inverse_of_HTM_Moves[m];
+//   }
+//   return ret;
+// }
