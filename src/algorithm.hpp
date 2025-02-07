@@ -8,11 +8,18 @@
 
 struct Algorithm {
   std::vector<Move> sequence;
+  bool inv_flag;
 
-  Algorithm(){};
-  Algorithm(const std::initializer_list<Move> s) : sequence{s} {};
-  Algorithm(const std::vector<Move> &s) : sequence{s} {};
-  Algorithm(const std::string &str) { *this = Algorithm::make_from_str(str); };
+  Algorithm(const bool is_on_inverse = false) : inv_flag{is_on_inverse} {};
+  Algorithm(const std::initializer_list<Move> s,
+            const bool is_on_inverse = false)
+      : sequence{s}, inv_flag{is_on_inverse} {};
+  Algorithm(const std::vector<Move> &s, const bool is_on_inverse = false)
+      : sequence{s}, inv_flag{is_on_inverse} {};
+  Algorithm(const std::string &str, const bool is_on_inverse = false)
+      : inv_flag{is_on_inverse} {
+    *this = Algorithm::make_from_str(str);
+  };
 
   static Algorithm make_from_str(const std::string &str) {
     Algorithm ret;
@@ -60,16 +67,18 @@ struct Algorithm {
 };
 
 std::ostream &operator<<(std::ostream &os, const Algorithm &alg) {
+  if (alg.inv_flag)
+    os << "(";
   for (auto move : alg.sequence) {
     os << move << " ";
   }
+  if (alg.inv_flag)
+    os << "\b)";
   return os;
 }
 
 void Algorithm::show() const {
-  for (auto &&m : sequence) {
-    std::cout << move_str[m] << " ";
-  }
+  std::cout << *this;
   if (sequence.size() > 0)
     std::cout << "(" << size() << ")" << std::endl;
 }
