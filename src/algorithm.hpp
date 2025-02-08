@@ -12,8 +12,11 @@ struct Algorithm {
   bool inv_flag;
 
   Algorithm() : inv_flag{false} {};
-  Algorithm(std::string str) : inv_flag{false} {
-
+  Algorithm(std::initializer_list<Move> &&s, const bool &flag = false)
+      : sequence{s}, inv_flag{flag} {};
+  explicit Algorithm(std::string str) : inv_flag{false} {
+    // A lot of types can be casted to std::string
+    // so sometimes overload resolution picks this constructor
     if (str[0] == '(') { // Turn on inverse flag if alg starts with '('
       assert(str.back() == ')');
       inv_flag = true;

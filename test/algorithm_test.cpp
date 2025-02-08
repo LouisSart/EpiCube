@@ -8,6 +8,17 @@ void test_algorithm() {
   assert(alg.inv_flag == true);
   assert(alg.back() == F3);
 
+  auto alg2 = Algorithm({R, U, R3, U3, R3, F, R2, U3, R3, U3, R, U, R3, F3});
+  assert(alg2.size() == 14);
+  assert(alg2.inv_flag == false);
+  assert(alg2.back() == F3);
+
+  auto alg3 =
+      Algorithm({R, U, R3, U3, R3, F, R2, U3, R3, U3, R, U, R3, F3}, false);
+  assert(alg3.size() == 14);
+  assert(alg3.inv_flag == false);
+  assert(alg3.back() == F3);
+
   auto step1 = StepAlgorithm("R' U' F", "padding");
   auto step2 = StepAlgorithm("(D L B2)");
   auto step3 = StepAlgorithm("U2 R F'", "finish");
