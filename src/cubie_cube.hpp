@@ -494,7 +494,16 @@ CubieCube move_cc[N_HTM_MOVES]{
 void CubieCube::apply(const Move &m) { apply(move_cc[m]); }
 
 void CubieCube::apply(const Algorithm &alg) {
-  for (const Move &m : alg.sequence) {
-    apply(m);
+  if (alg.inv_flag) {
+    auto cc = CubieCube();
+    for (auto it = alg.sequence.rbegin(); it != alg.sequence.rend(); ++it) {
+      cc.apply(inverse_of_HTM_Moves[*it]);
+    }
+    cc.apply(*this);
+    *this = cc;
+  } else {
+    for (const Move &m : alg.sequence) {
+      apply(m);
+    }
   }
 }
