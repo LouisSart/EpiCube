@@ -1,4 +1,5 @@
 #include "algorithm.hpp"
+#include "cubie_cube.hpp"
 #include <iostream>
 
 void test_algorithm() {
@@ -15,7 +16,19 @@ void test_algorithm() {
   assert(skel[1].size() == 3);
 }
 
+void test_apply() {
+  auto cube = CubieCube();
+
+  cube.apply(Algorithm("R U R' F' U2 L' U' L F U2"));
+  assert(cube.is_solved());
+
+  cube.apply(Algorithm("R' U' L2 B2 R' D' U2 F R F"));
+  cube.apply(StepAlgorithm("(R' U' L2 B2 R' D' U2 F R F)", "inverse"));
+  assert(cube.is_solved());
+}
+
 int main() {
   test_algorithm();
+  test_apply();
   return 0;
 }
