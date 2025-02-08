@@ -78,6 +78,8 @@ struct CubieCube {
 
   void apply(const Algorithm &);
 
+  void apply(const Skeleton &skel);
+
   CubieCube get_conjugate(const unsigned &sym_index);
 
   CubieCube get_anti_conjugate(const unsigned &sym_index);
@@ -505,5 +507,11 @@ void CubieCube::apply(const Algorithm &alg) {
     for (const Move &m : alg.sequence) {
       apply(m);
     }
+  }
+}
+
+void CubieCube::apply(const Skeleton &skel) {
+  for (const StepAlgorithm &step : skel) {
+    apply(step);
   }
 }

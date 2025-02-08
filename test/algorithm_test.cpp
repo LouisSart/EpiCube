@@ -36,6 +36,16 @@ void test_apply() {
   cube.apply(Algorithm("R' U' L2 B2 R' D' U2 F R F"));
   cube.apply(StepAlgorithm("(R' U' L2 B2 R' D' U2 F R F)", "inverse"));
   assert(cube.is_solved());
+
+  // Test a random Mallard solve
+  cube.apply(Algorithm("R' U' F R2 D' L F' D2 R2 D2 L2 F' U2 B2 U' B' L' U' B2 "
+                       "U' R' D' R' U' F"));
+  auto skel =
+      Skeleton({StepAlgorithm("U B"), StepAlgorithm("(D' B')"),
+                StepAlgorithm("(L' U')"), StepAlgorithm("L2 D R' D2 R"),
+                StepAlgorithm("L2 U F2 R2 D"), StepAlgorithm("F2 U2 L2")});
+  cube.apply(skel);
+  assert(cube.is_solved());
 }
 
 int main() {
