@@ -74,13 +74,13 @@ std::ostream &operator<<(std::ostream &os, const Algorithm &alg) {
         os << move << " ";
     }
     if (alg.sequence.size() > 0) os << "\b";
-    if (alg.inv_flag) os << ") ";
+    if (alg.inv_flag) os << ")";
     return os;
 }
 
 void Algorithm::show() const {
     std::cout << *this;
-    if (sequence.size() > 0) std::cout << "(" << size() << ")";
+    if (sequence.size() > 0) std::cout << " (" << size() << ")";
     std::cout << std::endl;
 }
 
@@ -94,7 +94,7 @@ struct StepAlgorithm : Algorithm {
         : Algorithm{alg}, comment{c} {}
 
     void show(unsigned previous_moves = 0) const {
-        std::cout << *this << "// " << comment << " (" << size() << "/"
+        std::cout << *this << " // " << comment << " (" << size() << "/"
                   << size() + previous_moves << ")" << std::endl;
     }
 };
