@@ -8,6 +8,7 @@ target_sources(epicube-core INTERFACE
         move.hpp
         node.hpp
         option.hpp
+        pruning_table.hpp
         search.hpp
         utils.hpp)
 target_include_directories(epicube-core INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
