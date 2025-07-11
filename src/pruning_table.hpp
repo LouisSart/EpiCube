@@ -90,15 +90,17 @@ template <std::size_t N> struct PruningTable {
 
   fs::path pruning_table_dir() const { return "pruning_tables/"; }
 
-  void load(fs::path filename) {
+  bool load(fs::path filename) {
     auto table_path = pruning_table_dir() / filename;
     if (fs::exists(table_path)) {
       std::ifstream istrm(table_path, std::ios::binary);
       istrm.read(reinterpret_cast<char *>(table.get()), sizeof(entry_type) * N);
       istrm.close();
+      return true;
     } else {
       print("Pruning table not found at: ", table_path);
     }
+    return false;
   }
 
   void write(fs::path filename) const {

@@ -47,7 +47,9 @@ void test_generate() {
 
   pt.write("pruning_tables/all_corners.dat");
   PruningTable<N> reload;
-  reload.load("pruning_tables/all_corners.dat");
+  bool check = reload.load("pruning_tables/all_corners.dat");
+
+  assert(check);
 
   assert(reload.is_filled());
   for (unsigned i = 0; i < N; ++i) {
