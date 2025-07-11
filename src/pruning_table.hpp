@@ -64,12 +64,13 @@ template <std::size_t N> struct PruningTable {
     std::deque<Cube> queue{Cube()};
 
     table[index(Cube())] = 0;
+    unsigned i, depth;
 
     while (!queue.empty()) {
       Cube cc = queue.back();
 
-      unsigned i = index(cc);
-      unsigned depth = table[i];
+      i = index(cc);
+      depth = table[i];
       assert(i < N);
 
       for (auto move : moves) {
