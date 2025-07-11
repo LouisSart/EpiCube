@@ -88,7 +88,10 @@ template <std::size_t N> struct PruningTable {
     }
   }
 
-  void load(fs::path table_path) {
+  fs::path pruning_table_dir() const { return "pruning_tables/"; }
+
+  void load(fs::path filename) {
+    auto table_path = pruning_table_dir() / filename;
     if (fs::exists(table_path)) {
       std::ifstream istrm(table_path, std::ios::binary);
       istrm.read(reinterpret_cast<char *>(table.get()), sizeof(entry_type) * N);
@@ -98,7 +101,8 @@ template <std::size_t N> struct PruningTable {
     }
   }
 
-  void write(fs::path table_path) const {
+  void write(fs::path filename) const {
+    auto table_path = pruning_table_dir() / filename;
     fs::create_directories(table_path.parent_path());
     std::ofstream file(table_path, std::ios::binary);
     file.write(reinterpret_cast<const char *>(table.get()),
