@@ -135,8 +135,23 @@ constexpr auto move_conj_table = [] {
   return ret;
 }();
 
+constexpr auto move_anti_conj_table = [] {
+  std::array<Move, N_SYM *N_HTM_MOVES> ret = {};
+  for (unsigned s = 0; s < N_SYM; ++s) {
+    for (Move m : HTM_Moves) {
+      auto move_perm = get_move_permutation(s);
+      ret[s * N_HTM_MOVES + move_perm[m]] = m;
+    }
+  }
+  return ret;
+}();
+
 Move move_conj(const Move &m, const unsigned &s) {
   return move_conj_table[s * N_HTM_MOVES + m];
+}
+
+Move move_anti_conj(const Move &m, const unsigned &s) {
+  return move_anti_conj_table[s * N_HTM_MOVES + m];
 }
 
 Algorithm symmetrize(const Algorithm &alg, const unsigned &sym_index) {
@@ -146,6 +161,17 @@ Algorithm symmetrize(const Algorithm &alg, const unsigned &sym_index) {
   Algorithm ret;
   for (const Move &m : alg.sequence) {
     ret.append(move_conj(m, sym_index));
+  }
+  return ret;
+}
+
+Algorithm anti_symmetrize(const Algorithm &alg, const unsigned &sym_index) {
+  // Return the algorithm that is the anti-conjugation of alg by the symmetry
+  // with index sym_index
+
+  Algorithm ret;
+  for (const Move &m : alg.sequence) {
+    ret.append(move_anti_conj(m, sym_index));
   }
   return ret;
 }
