@@ -59,11 +59,11 @@ template <std::size_t N> struct PruningTable {
 
   template <typename Cube, typename Mover, typename Indexer,
             std::size_t NM = 18>
-  auto generate(const Mover &apply, const Indexer &index,
+  auto generate(const Cube &root, const Mover &apply, const Indexer &index,
                 const std::array<Move, NM> &moves = HTM_Moves) {
-    std::deque<Cube> queue{Cube()};
+    std::deque<Cube> queue{root};
 
-    table[index(Cube())] = 0;
+    table[index(root)] = 0;
     unsigned i, depth;
 
     while (!queue.empty()) {

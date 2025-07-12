@@ -41,7 +41,7 @@ void test_generate() {
   auto apply = [](const Move &move, CubieCube &cc) { cc.apply(move); };
   auto index = [](const CubieCube &cc) { return permutation_index(cc.cp); };
 
-  pt.generate<CubieCube>(apply, index);
+  pt.generate(CubieCube(), apply, index);
 
   assert(pt.is_filled());
 
