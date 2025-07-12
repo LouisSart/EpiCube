@@ -138,3 +138,14 @@ constexpr auto move_conj_table = [] {
 Move move_conj(const Move &m, const unsigned &s) {
   return move_conj_table[s * N_HTM_MOVES + m];
 }
+
+Algorithm symmetrize(const Algorithm &alg, const unsigned &sym_index) {
+  // Return the algorithm that is the conjugation of alg by the symmetry
+  // with index sym_index
+
+  Algorithm ret;
+  for (const Move &m : alg.sequence) {
+    ret.append(move_conj(m, sym_index));
+  }
+  return ret;
+}
