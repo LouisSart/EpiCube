@@ -37,8 +37,9 @@ public:
     return children;
   };
 
-  Algorithm get_path() const {
+  Algorithm get_path(const bool inverse = false) const {
     Algorithm path;
+    path.inv_flag = inverse;
     csptr p = this->shared_from_this();
     while (p != nullptr) {
       path.prepend(p->last_moves);
