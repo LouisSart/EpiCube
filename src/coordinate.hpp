@@ -48,7 +48,6 @@ constexpr auto binomial_table = [] {
 
 constexpr unsigned binomial(unsigned n, unsigned k) {
   // The function just does a lookup in the table for better performance
-  assert(n >= 0 && k >= 0); // "No negative values"
   assert(n < 13 && k < 13); // "Binomial numbers computed up to n=12"
   return binomial_table[n * 13 + k];
 }
