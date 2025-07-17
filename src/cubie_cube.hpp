@@ -16,12 +16,12 @@
 struct CubieCube {
   std::array<Cubie, NC> cp{ULF, URF, URB, ULB, DLF, DRF, DRB, DLB};
   std::array<Cubie, NC> co{0, 0, 0, 0, 0, 0, 0, 0};
-  std::array<Edge, NE> ep{UF, UR, UB, UL, LF, RF, RB, LB, DF, DR, DB, DL};
+  std::array<Cubie, NE> ep{UF, UR, UB, UL, LF, RF, RB, LB, DF, DR, DB, DL};
   std::array<Cubie, NE> eo{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
   CubieCube(){};
   CubieCube(std::array<Cubie, NC> cp_in, std::array<Cubie, NC> co_in,
-            std::array<Edge, NE> ep_in, std::array<Cubie, NE> eo_in)
+            std::array<Cubie, NE> ep_in, std::array<Cubie, NE> eo_in)
       : cp{cp_in}, co{co_in}, ep{ep_in}, eo{eo_in} {}
   CubieCube(const Algorithm &scramble) { apply(scramble); }
 
@@ -55,7 +55,7 @@ struct CubieCube {
   void edge_apply(const CubieCube &cc) {
     // Apply the corner transformation of the given CubieCube
 
-    std::array<Edge, NE> new_ep;
+    std::array<Cubie, NE> new_ep;
     std::array<Cubie, NE> new_eo;
     for (Cubie e = UF; e < NE; e++) {
       new_ep[e] = ep[cc.ep[e]];
