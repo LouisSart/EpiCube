@@ -67,15 +67,15 @@ template <std::size_t N> struct PruningTable {
     unsigned i, depth, count = 0;
 
     while (!queue.empty()) {
+
+      Cube cc = queue.back();
+      i = index(cc);
+      depth = table[i];
       if constexpr (verbose) {
         if (table[i] > depth) {
           print(depth, count, (double)count / size() * 100, "%");
         }
       }
-
-      Cube cc = queue.back();
-      i = index(cc);
-      depth = table[i];
       assert(i < N);
 
       for (auto move : moves) {
