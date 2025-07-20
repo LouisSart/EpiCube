@@ -57,18 +57,21 @@ template <std::size_t N> struct PruningTable {
                        [](const entry_type &e) { return e != unassigned; });
   }
 
-  template <typename Cube, typename Mover, typename Indexer,
-            std::size_t NM = 18>
+  template <bool verbose = false, typename Cube, typename Mover,
+            typename Indexer, std::size_t NM = 18>
   auto generate(const Cube &root, const Mover &apply, const Indexer &index,
                 const std::array<Move, NM> &moves = HTM_Moves) {
     std::deque<Cube> queue{root};
 
     table[index(root)] = 0;
-    unsigned i, depth;
+    unsigned i, depth, count = 0;
 
     while (!queue.empty()) {
-      Cube cc = queue.back();
+      if constexpr (verbose)
+        if (table[i] > depth)
+          print(depth, count, (double)count / size() * 100, "%");
 
+      Cube cc = queue.back();
       i = index(cc);
       depth = table[i];
       assert(i < N);
@@ -82,6 +85,7 @@ template <std::size_t N> struct PruningTable {
         if (!is_assigned(ii)) {
           table[ii] = depth + 1;
           queue.push_front(cc2);
+          ++count;
         }
       }
       queue.pop_back();
