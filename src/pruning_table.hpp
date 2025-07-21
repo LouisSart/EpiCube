@@ -112,10 +112,13 @@ template <std::size_t N> struct PruningTable {
 
   void show_distribution() {
     auto distr = get_distribution();
+    float mean = 0.0;
 
     for (unsigned k = 0; k < distr.size(); ++k) {
       std::cout << std::setw(2) << k << " " << distr[k] << std::endl;
+      mean += k * distr[k];
     }
+    std::cout << "Mean value: " << mean / N << std::endl;
   }
 
   fs::path pruning_table_dir() const { return "pruning_tables/"; }
