@@ -55,6 +55,8 @@ void test_generate() {
   for (unsigned i = 0; i < N; ++i) {
     assert(reload.estimate(i) == pt.estimate(i));
   }
+
+  pt.show_distribution();
 }
 
 int main() {

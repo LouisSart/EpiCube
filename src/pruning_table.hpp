@@ -64,7 +64,7 @@ template <std::size_t N> struct PruningTable {
     std::deque<Cube> queue{root};
 
     table[index(root)] = 0;
-    unsigned i, depth, count = 0;
+    unsigned i = 0, depth = 0, count = 1;
 
     while (!queue.empty()) {
       Cube cc = queue.back();
@@ -93,6 +93,29 @@ template <std::size_t N> struct PruningTable {
       }
       queue.pop_back();
     }
+    assert(is_filled());
+    assert(count == N);
+  }
+
+  std::vector<unsigned> get_distribution() const {
+    std::vector<unsigned> ret = {0};
+    unsigned h;
+    for (auto it = table.get(); it < table.get() + N; ++it) {
+      h = (unsigned)(*it);
+      if (h + 1 > ret.size()) {
+        ret.resize(h + 1);
+      }
+      ++ret[h];
+    }
+    return ret;
+  }
+
+  void show_distribution() {
+    auto distr = get_distribution();
+
+    for (unsigned k = 0; k < distr.size(); ++k) {
+      std::cout << std::setw(2) << k << " " << distr[k] << std::endl;
+    }
   }
 
   fs::path pruning_table_dir() const { return "pruning_tables/"; }
@@ -103,6 +126,7 @@ template <std::size_t N> struct PruningTable {
       std::ifstream istrm(table_path, std::ios::binary);
       istrm.read(reinterpret_cast<char *>(table.get()), sizeof(entry_type) * N);
       istrm.close();
+      assert(is_filled());
       return true;
     } else {
       print("Pruning table not found at: ", table_path);
