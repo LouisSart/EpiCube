@@ -10,6 +10,6 @@ target_sources(epicube-core INTERFACE
         option.hpp
         pruning_table.hpp
         search.hpp
-        step.hpp
+        step_node.hpp
         utils.hpp)
 target_include_directories(epicube-core INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
