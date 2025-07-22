@@ -58,6 +58,8 @@ struct Algorithm {
 
     void append(const Move &move) { sequence.push_back(move); }
 
+    void prepend(const Move &move) { sequence.insert(sequence.begin(), move); }
+
     Move back() { return sequence.back(); }
 
     auto size() const { return sequence.size(); }

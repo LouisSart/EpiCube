@@ -27,7 +27,7 @@ std::vector<Move> standard_directions(const NodePtr node) {
     if (node->parent == nullptr) {
         return default_directions;
     } else {
-        return allowed_next(node->last_moves.back());
+        return allowed_next(node->last_move);
     }
 }
 
