@@ -80,6 +80,12 @@ struct CubieCube {
 
   void apply(const Skeleton &);
 
+  void sym_apply(const Move &, const unsigned &);
+
+  void sym_apply(const Algorithm &, const unsigned &);
+
+  void sym_apply(const Skeleton &, const unsigned &);
+
   CubieCube get_conjugate(const unsigned &sym_index) const;
 
   CubieCube get_anti_conjugate(const unsigned &sym_index) const;
@@ -513,5 +519,30 @@ void CubieCube::apply(const Algorithm &alg) {
 void CubieCube::apply(const Skeleton &skel) {
   for (const StepAlgorithm &step : skel) {
     apply(step);
+  }
+}
+
+void CubieCube::sym_apply(const Move &m, const unsigned &s) {
+  apply(move_conj(m, s));
+}
+
+void CubieCube::sym_apply(const Algorithm &alg, const unsigned &s) {
+  if (alg.inv_flag) {
+    auto cc = CubieCube();
+    for (auto it = alg.sequence.rbegin(); it != alg.sequence.rend(); ++it) {
+      cc.apply(move_conj(inverse_of_HTM_Moves[*it], s));
+    }
+    cc.apply(*this);
+    *this = cc;
+  } else {
+    for (const Move &m : alg.sequence) {
+      apply(move_conj(m, s));
+    }
+  }
+}
+
+void CubieCube::sym_apply(const Skeleton &skel, const unsigned &s) {
+  for (const StepAlgorithm &step : skel) {
+    sym_apply(step, s);
   }
 }
