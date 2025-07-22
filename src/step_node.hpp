@@ -33,52 +33,60 @@ struct StepNode : std::enable_shared_from_this<StepNode> {
         }
         return ret;
     }
+
     Skeleton get_skeleton(std::vector<std::string> &&comments) const {
         return get_skeleton(comments);
     }
 
     template <typename Initializer, typename Solver>
     auto expand(const Initializer &initialize, const Solver &solve,
-                const unsigned max_depth, const unsigned slackness) {
+                const unsigned max_depth, const unsigned slackness,
+                const bool niss = true) {
         auto children = std::vector<StepNode::sptr>{};
 
         auto root = initialize(state);
-        auto step_mbc = solve(root, max_depth, slackness);
+        auto step_sols = solve(root, max_depth, slackness);
 
-        for (auto &&mbc_node : step_mbc) {
-            Algorithm seq = mbc_node->get_path();
+        for (auto &&sol : step_sols) {
+            Algorithm seq = sol->get_path();
             seq.inv_flag = this->seq.inv_flag;
 
             CubieCube copy = state;
             copy.apply(seq);
-            unsigned d = depth + mbc_node->depth;
+            unsigned d = depth + sol->depth;
             children.emplace_back(
                 new StepNode(copy, seq, this->shared_from_this(), d));
         }
 
         // Solve the inverse
-        CubieCube inv_cc = state.get_inverse();
-        auto root_inv = initialize(inv_cc);
-        auto step_mbc_inv = solve(root_inv, max_depth, slackness);
+        if (niss) {
+            CubieCube inv_cc = state.get_inverse();
+            auto root_inv = initialize(inv_cc);
 
-        for (auto &&mbc_node : step_mbc_inv) {
-            Algorithm seq = mbc_node->get_path();
+            auto inv_solutions = solve(root_inv, max_depth, slackness);
 
-            CubieCube copy = inv_cc;
-            copy.apply(seq);
-            seq.inv_flag = !this->seq.inv_flag;
-            unsigned d = depth + mbc_node->depth;
-            children.emplace_back(
-                new StepNode{copy, seq, this->shared_from_this(), d});
+            for (auto &&sol : inv_solutions) {
+                Algorithm seq = sol->get_path();
+
+                CubieCube copy = inv_cc;
+                copy.apply(seq);
+                seq.inv_flag = !this->seq.inv_flag;
+                unsigned d = depth + sol->depth;
+                children.emplace_back(
+                    new StepNode{copy, seq, this->shared_from_this(), d});
+            }
         }
         return children;
     }
 };
 
+constexpr bool NISS = true;
+constexpr bool NONISS = false;
+
 template <typename Initializer, typename Solver, typename NextStepper>
 auto make_stepper(const Initializer &initialize, const Solver &solve,
-                  const NextStepper &next_stepper) {
-    return [&initialize, &solve, &next_stepper](
+                  const NextStepper &next_stepper, const bool &niss = NISS) {
+    return [&initialize, &solve, &next_stepper, &niss](
                const std::vector<StepNode::sptr> &prev_step_cc,
                const unsigned move_budget, const unsigned breadth,
                const unsigned slackness) -> std::vector<StepNode::sptr> {
@@ -87,8 +95,9 @@ auto make_stepper(const Initializer &initialize, const Solver &solve,
 
         for (auto &&step_node : prev_step_cc) {
             unsigned depth = step_node->depth;
-            auto children = step_node->expand(
-                initialize, solve, move_budget - step_node->depth, slackness);
+            auto children = step_node->expand(initialize, solve,
+                                              move_budget - step_node->depth,
+                                              slackness, niss);
 
             if (step_cc.size() + children.size() > breadth) {
                 break;  // Do not expand more nodes if breadth is
