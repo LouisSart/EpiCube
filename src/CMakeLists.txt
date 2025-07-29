@@ -6,6 +6,7 @@ target_sources(epicube-core INTERFACE
         cubie_cube.hpp
         cubie.hpp
         move.hpp
+        move_table.hpp
         node.hpp
         option.hpp
         pruning_table.hpp
