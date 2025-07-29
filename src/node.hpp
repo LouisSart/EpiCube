@@ -15,10 +15,10 @@ struct Node : public std::enable_shared_from_this<Node<Cube>> {
     unsigned depth;  // The number of moves made to get this state
     Move last_move;  // The moves which yielded this state
 
-    Node() : state{Cube()}, depth{0}, parent{nullptr} {}
+    Node() : state{Cube()}, parent{nullptr}, depth{0} {}
     Node(const Cube &c, const unsigned &d = 0, sptr p = nullptr,
          const Move &move = D)
-        : state{c}, depth{d}, parent{p}, last_move{move} {}
+        : state{c}, parent{p}, depth{d}, last_move{move} {}
 
    public:
     bool is_root() const { return parent == nullptr; }
