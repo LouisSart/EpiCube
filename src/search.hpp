@@ -72,7 +72,7 @@ Solutions<NodePtr> IDAstar(
     const SolveCheck &is_solved,
     const Directions &directions = standard_directions<NodePtr>,
     const unsigned max_depth = 20, const unsigned slackness = 0) {
-    unsigned search_depth = estimate(root->state);
+    unsigned search_depth = estimate(root->state) + root->depth;
 
     Solutions<NodePtr> solutions;
     while (solutions.size() == 0 && search_depth <= max_depth) {
