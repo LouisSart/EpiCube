@@ -83,7 +83,7 @@ struct PruningTable {
 
     template <bool verbose = false, std::size_t NM = 18>
     void generate(const auto &cube, const auto &apply, const auto &index,
-                  const auto &from_index,
+                  const auto &from_index, const unsigned &switch_depth = 10,
                   const std::array<Move, NM> &moves = HTM_Moves) {
         // IDDFS on the first layers of the tree until the branching factor
         // drops
@@ -91,10 +91,10 @@ struct PruningTable {
         std::vector<unsigned> distribution;
         unsigned node_counter = 0, nodes;
         unsigned fill_depth = 0;
-        while ((float)node_counter < N / 50.0) {
+        while ((float)node_counter < N / 50.0 && fill_depth < switch_depth) {
             // Experience shows that it is not efficient to fill most of the
             // entries with forward scan. We break this loop after 2%
-            // of the table is filled
+            // of the table is filled or the given switch depth is reached
             nodes = DFS_fill(cube, 0, fill_depth, apply, index, moves,
                              node_counter);
 
