@@ -31,7 +31,7 @@ std::vector<Move> standard_directions(const NodePtr node) {
     }
 }
 
-template <bool verbose = true, typename NodePtr, typename Mover,
+template <bool verbose = false, typename NodePtr, typename Mover,
           typename Pruner, typename SolveCheck, typename Directions>
 Solutions<NodePtr> depth_first_search(const NodePtr root, const Mover &apply,
                                       const Pruner &estimate,
@@ -65,7 +65,7 @@ Solutions<NodePtr> depth_first_search(const NodePtr root, const Mover &apply,
     return all_solutions;
 }
 
-template <bool verbose = true, typename NodePtr, typename Mover,
+template <bool verbose = false, typename NodePtr, typename Mover,
           typename Pruner, typename SolveCheck, typename Directions>
 Solutions<NodePtr> IDAstar(
     const NodePtr root, const Mover &apply, const Pruner &estimate,
@@ -95,7 +95,8 @@ Solutions<NodePtr> IDAstar(
         search_depth = (max_depth < search_depth + slackness - 1)
                            ? max_depth
                            : search_depth + slackness - 1;
-        std::cout << "Searching at depth " << search_depth << std::endl;
+        if (verbose)
+            std::cout << "Searching at depth " << search_depth << std::endl;
         solutions = depth_first_search<verbose>(
             root, apply, estimate, is_solved, directions, search_depth);
     }
@@ -109,7 +110,7 @@ Solutions<NodePtr> IDAstar(
 
 // Overload of IDAstar to work with default directions because
 // setting a template overload as a default parameter causes errors
-template <bool verbose = true, typename NodePtr, typename Mover,
+template <bool verbose = false, typename NodePtr, typename Mover,
           typename Pruner, typename SolveCheck>
 Solutions<NodePtr> IDAstar(const NodePtr root, const Mover &apply,
                            const Pruner &estimate, const SolveCheck &is_solved,
