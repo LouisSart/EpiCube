@@ -90,23 +90,16 @@ struct PruningTable {
         std::vector<unsigned> distribution;
         unsigned node_counter = 0, nodes;
         unsigned fill_depth = 0;
-        while (node_counter < N) {
+        while ((float)node_counter < N / 50.0) {
+            // Experience shows that it is not efficient to fill most of the
+            // entries with forward scan. We break this loop after 2%
+            // of the table is filled
             nodes = DFS_fill(cube, 0, fill_depth, apply, index, moves,
                              node_counter);
 
             if constexpr (verbose) print(fill_depth, nodes);
             node_counter += nodes;
             ++fill_depth;
-
-            if (distribution.size() > 0) {
-                // If fewer new nodes are found, save current node count and
-                // leave loop
-                if (nodes < distribution.back()) {
-                    distribution.push_back(nodes);
-                    break;
-                };
-            }
-
             distribution.push_back(nodes);
         }
 
