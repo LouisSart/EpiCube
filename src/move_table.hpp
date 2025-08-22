@@ -39,7 +39,7 @@ struct MoveTable {
                            [](const unsigned &e) { return e < N; });
     }
 
-    void apply(unsigned &c, const Move &m) { c = table[c * N_HTM_MOVES + m]; }
+    void apply(const Move &m, unsigned &c) { c = table[c * N_HTM_MOVES + m]; }
 
     bool load(fs::path filename) {
         auto table_path = move_table_dir() / filename;

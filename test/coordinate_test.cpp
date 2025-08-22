@@ -71,7 +71,7 @@ void test_move_table() {
     unsigned c;
     for (Move m : {R, U3, F2, B, D3, L2}) {
         cc.apply(m);
-        move_table.apply(c, m);
+        move_table.apply(m, c);
         assert(c == index(cc));
     }
 
