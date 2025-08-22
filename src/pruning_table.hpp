@@ -81,9 +81,10 @@ struct PruningTable {
         return ret;
     }
 
-    template <bool verbose = false>
+    template <bool verbose = false, std::size_t NM = 18>
     void generate(const auto &cube, const auto &apply, const auto &index,
-                  const auto &from_index, const auto &moves) {
+                  const auto &from_index,
+                  const std::array<Move, NM> &moves = HTM_Moves) {
         // IDDFS on the first layers of the tree until the branching factor
         // drops
 

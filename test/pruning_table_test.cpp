@@ -48,7 +48,7 @@ void test_generate() {
         return ret;
     };
 
-    pt.generate(CubieCube(), apply, index, from_index, HTM_Moves);
+    pt.generate(CubieCube(), apply, index, from_index);
     assert(pt.is_filled());
 
     pt.write("pruning_tables/all_corners.dat");
