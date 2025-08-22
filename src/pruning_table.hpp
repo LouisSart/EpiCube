@@ -130,6 +130,47 @@ struct PruningTable {
         assert(is_filled());
     }
 
+    template <bool verbose = false, typename Cube, typename Mover,
+              typename Indexer, std::size_t NM = 18>
+    auto generate_BFS(const Cube &root, const Mover &apply,
+                      const Indexer &index,
+                      const std::array<Move, NM> &moves = HTM_Moves) {
+        std::deque<Cube> queue{root};
+
+        table[index(root)] = 0;
+        unsigned i = 0, depth = 0, count = 1;
+
+        while (!queue.empty()) {
+            Cube cc = queue.back();
+            i = index(cc);
+
+            if constexpr (verbose) {
+                if (table[i] > depth) {
+                    print(depth, count, (double)count / size() * 100, "%");
+                }
+            }
+
+            depth = table[i];
+            assert(i < N);
+
+            for (auto move : moves) {
+                Cube cc2 = cc;
+                apply(move, cc2);
+
+                unsigned ii = index(cc2);
+                assert(ii < N);
+                if (!is_assigned(ii)) {
+                    table[ii] = depth + 1;
+                    queue.push_front(cc2);
+                    ++count;
+                }
+            }
+            queue.pop_back();
+        }
+        assert(is_filled());
+        assert(count == N);
+    }
+
     std::vector<unsigned> get_distribution() const {
         std::vector<unsigned> ret = {0};
         unsigned h;
