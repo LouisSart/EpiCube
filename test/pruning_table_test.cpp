@@ -48,7 +48,7 @@ void test_generate() {
         return ret;
     };
 
-    pt.generate(CubieCube(), apply, index, from_index);
+    pt.generate<true>(CubieCube(), apply, index, from_index);
     assert(pt.is_filled());
 
     pt.write("pruning_tables/all_corners.dat");
@@ -62,7 +62,7 @@ void test_generate() {
         assert(reload.estimate(i) == pt.estimate(i));
     }
 
-    pt.show_distribution();
+    // pt.show_distribution();
 }
 
 int main() {

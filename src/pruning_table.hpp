@@ -83,7 +83,7 @@ struct PruningTable {
 
     template <bool verbose = false, std::size_t NM = 18>
     void generate(const auto &cube, const auto &apply, const auto &index,
-                  const auto &from_index, const unsigned &switch_depth = 10,
+                  const auto &from_index,
                   const std::array<Move, NM> &moves = HTM_Moves) {
         // IDDFS on the first layers of the tree until the branching factor
         // drops
@@ -91,10 +91,10 @@ struct PruningTable {
         std::vector<unsigned> distribution;
         unsigned node_counter = 0, nodes;
         unsigned fill_depth = 0;
-        while ((float)node_counter < N / 50.0 && fill_depth < switch_depth) {
-            // Experience shows that it is not efficient to fill most of the
-            // entries with forward scan. We break this loop after 2%
-            // of the table is filled or the given switch depth is reached
+        while ((float)node_counter < N / 50.0) {
+            // It is not efficient to fill most of the
+            // entries with IDDFS. We break this loop after 2%
+            // of the table is filled
             nodes = DFS_fill(cube, 0, fill_depth, apply, index, moves,
                              node_counter);
 
@@ -102,6 +102,37 @@ struct PruningTable {
             node_counter += nodes;
             ++fill_depth;
             distribution.push_back(nodes);
+        }
+
+        bool keep_forward = true;
+        if constexpr (verbose) print("switch to forwards scan");
+        while (node_counter < N && keep_forward) {
+            // Forward scan is efficient up to the level with most nodes
+            nodes = 0;
+            for (unsigned k = 0; k < N; ++k) {
+                if (table[k] + 1 == fill_depth) {
+                    auto cube = from_index(k);
+                    for (const Move &m : moves) {
+                        auto child = cube;
+                        apply(m, child);
+
+                        unsigned ci = index(child);
+                        if (!is_assigned(ci)) {
+                            table[ci] = fill_depth;
+                            ++nodes;
+                        }
+                    }
+                }
+            }
+            if constexpr (verbose) print(fill_depth, nodes);
+            node_counter += nodes;
+
+            assert(distribution.size() > 0);
+            // Switch to backwards when new level is less than
+            // two times bigger than the previous
+            keep_forward = (distribution.back() * 2 < nodes);
+            distribution.push_back(nodes);
+            ++fill_depth;
         }
 
         if constexpr (verbose) print("switch to backwards");
@@ -126,6 +157,7 @@ struct PruningTable {
             }
             if constexpr (verbose) print(fill_depth, nodes);
             node_counter += nodes;
+            distribution.push_back(nodes);
             ++fill_depth;
         }
         assert(is_filled());
