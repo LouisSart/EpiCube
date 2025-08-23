@@ -83,18 +83,16 @@ struct PruningTable {
 
     template <bool verbose = false, std::size_t NM = 18>
     void generate(const auto &cube, const auto &apply, const auto &index,
-                  const auto &from_index,
+                  const auto &from_index, const unsigned forward_switch_depth,
+                  const unsigned backwards_switch_depth,
                   const std::array<Move, NM> &moves = HTM_Moves) {
-        // IDDFS on the first layers of the tree until the branching factor
-        // drops
+        assert(forward_switch_depth < backwards_switch_depth);
 
         std::vector<unsigned> distribution;
         unsigned node_counter = 0, nodes;
         unsigned fill_depth = 0;
-        while ((float)node_counter / N < 1.0 / 100.0) {
+        while (fill_depth < forward_switch_depth) {
             // IDDFS is only fast on the first few layers of the tree.
-            // We break this loop after 1%
-            // of the table is filled
             nodes = DFS_fill(cube, 0, fill_depth, apply, index, moves,
                              node_counter);
 
@@ -106,7 +104,7 @@ struct PruningTable {
 
         bool keep_forward = true;
         if constexpr (verbose) print("switch to forwards scan");
-        while (node_counter < N && keep_forward) {
+        while (fill_depth < backwards_switch_depth) {
             // Forward scan is efficient up to the level with most nodes
             nodes = 0;
             for (unsigned k = 0; k < N; ++k) {
@@ -128,9 +126,6 @@ struct PruningTable {
             node_counter += nodes;
 
             assert(distribution.size() > 0);
-            // Switch to backwards when new level is less than
-            // two times bigger than the previous
-            keep_forward = (distribution.back() * 2 < nodes);
             distribution.push_back(nodes);
             ++fill_depth;
         }
@@ -161,6 +156,7 @@ struct PruningTable {
             ++fill_depth;
         }
         assert(is_filled());
+        assert(N == node_counter);
     }
 
     template <bool verbose = false, typename Cube, typename Mover,
