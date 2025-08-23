@@ -91,9 +91,9 @@ struct PruningTable {
         std::vector<unsigned> distribution;
         unsigned node_counter = 0, nodes;
         unsigned fill_depth = 0;
-        while ((float)node_counter < N / 50.0) {
-            // It is not efficient to fill most of the
-            // entries with IDDFS. We break this loop after 2%
+        while ((float)node_counter / N < 1.0 / 100.0) {
+            // IDDFS is only fast on the first few layers of the tree.
+            // We break this loop after 1%
             // of the table is filled
             nodes = DFS_fill(cube, 0, fill_depth, apply, index, moves,
                              node_counter);
