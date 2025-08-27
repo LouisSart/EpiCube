@@ -20,5 +20,9 @@ int main() {
     auto root = make_root(state);
 
     auto solutions = IDAstar(root, apply, estimate, is_solved);
+
+    for (auto sol : solutions) {
+        assert(sol->get_root() == root);
+    }
     solutions.show();
 }

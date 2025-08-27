@@ -48,6 +48,14 @@ struct Node : public std::enable_shared_from_this<Node<Cube>> {
         return path;
     }
 
+    csptr get_root() const {
+        auto p = this->shared_from_this();
+        while (p->parent != nullptr) {
+            p = p->parent;
+        }
+        return p;
+    }
+
     void show() const {
         std::cout << "Node object: " << std::endl;
         std::cout << " Depth: " << depth << std::endl;
