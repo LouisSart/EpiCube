@@ -35,15 +35,16 @@ std::vector<Move> standard_directions(const NodePtr node) {
 
 template <bool verbose = false, typename NodePtr, typename Mover,
           typename Pruner, typename SolveCheck, typename Directions>
-Solutions<NodePtr> depth_first_search(const NodePtr root, const Mover &apply,
+Solutions<NodePtr> depth_first_search(std::deque<NodePtr> queue,
+                                      const Mover &apply,
                                       const Pruner &estimate,
                                       const SolveCheck &is_solved,
                                       const Directions &directions,
                                       const unsigned max_depth = 4) {
+    // Main implementation starting from any number of root states
     Solutions<NodePtr> solutions;
     solutions.best_hope = 100;
     unsigned node_counter = 0, hope;
-    std::deque<NodePtr> queue({root});
 
     while (queue.size() > 0) {
         auto node = queue.back();
@@ -72,12 +73,30 @@ Solutions<NodePtr> depth_first_search(const NodePtr root, const Mover &apply,
 
 template <bool verbose = false, typename NodePtr, typename Mover,
           typename Pruner, typename SolveCheck, typename Directions>
-Solutions<NodePtr> IDAstar(const NodePtr root, const Mover &apply,
+Solutions<NodePtr> depth_first_search(const NodePtr root, const Mover &apply,
+                                      const Pruner &estimate,
+                                      const SolveCheck &is_solved,
+                                      const Directions &directions,
+                                      const unsigned max_depth = 4) {
+    // Overload for solving a single starting position
+    std::deque<NodePtr> queue({root});
+    return depth_first_search<verbose>(queue, apply, estimate, is_solved,
+                                       directions, max_depth);
+}
+
+template <bool verbose = false, typename NodePtr, typename Mover,
+          typename Pruner, typename SolveCheck, typename Directions>
+Solutions<NodePtr> IDAstar(std::deque<NodePtr> roots, const Mover &apply,
                            const Pruner &estimate, const SolveCheck &is_solved,
                            const Directions &directions,
                            const unsigned max_depth = 20,
                            const unsigned slackness = 0) {
-    unsigned search_depth = estimate(root->state) + root->depth;
+    // Main implementation, starting from any number of root nodes
+    unsigned search_depth = 100;
+    for (auto root : roots) {
+        search_depth =
+            std::min(estimate(root->state) + root->depth, search_depth);
+    }
 
     Solutions<NodePtr> solutions;
     while (solutions.size() == 0 && search_depth <= max_depth) {
@@ -85,7 +104,7 @@ Solutions<NodePtr> IDAstar(const NodePtr root, const Mover &apply,
             std::cout << "Searching at depth " << search_depth << std::endl;
         }
         solutions = depth_first_search<verbose>(
-            root, apply, estimate, is_solved, directions, search_depth);
+            roots, apply, estimate, is_solved, directions, search_depth);
         search_depth = solutions.best_hope;
     }
     if constexpr (verbose) {
@@ -103,7 +122,7 @@ Solutions<NodePtr> IDAstar(const NodePtr root, const Mover &apply,
         if (verbose)
             std::cout << "Searching at depth " << search_depth << std::endl;
         solutions = depth_first_search<verbose>(
-            root, apply, estimate, is_solved, directions, search_depth);
+            roots, apply, estimate, is_solved, directions, search_depth);
     }
     if constexpr (verbose) {
         if (solutions.size() == 0) {
@@ -113,8 +132,31 @@ Solutions<NodePtr> IDAstar(const NodePtr root, const Mover &apply,
     return solutions;
 }
 
-// Overload of IDAstar to work with default directions because
+template <bool verbose = false, typename NodePtr, typename Mover,
+          typename Pruner, typename SolveCheck, typename Directions>
+Solutions<NodePtr> IDAstar(const NodePtr root, const Mover &apply,
+                           const Pruner &estimate, const SolveCheck &is_solved,
+                           const Directions &directions,
+                           const unsigned max_depth = 20,
+                           const unsigned slackness = 0) {
+    // Overload for solving a single starting position
+    std::deque<NodePtr> queue{root};
+    return IDAstar<verbose>(queue, apply, estimate, is_solved, directions,
+                            max_depth, slackness);
+}
+
+// Overloads of IDAstar to work with default directions because
 // setting a template overload as a default parameter causes errors
+template <bool verbose = false, typename NodePtr, typename Mover,
+          typename Pruner, typename SolveCheck>
+Solutions<NodePtr> IDAstar(const std::deque<NodePtr> roots, const Mover &apply,
+                           const Pruner &estimate, const SolveCheck &is_solved,
+                           const unsigned max_depth = 20,
+                           const unsigned slackness = 0) {
+    return IDAstar<verbose>(roots, apply, estimate, is_solved,
+                            standard_directions<NodePtr>, max_depth, slackness);
+}
+
 template <bool verbose = false, typename NodePtr, typename Mover,
           typename Pruner, typename SolveCheck>
 Solutions<NodePtr> IDAstar(const NodePtr root, const Mover &apply,
