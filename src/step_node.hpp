@@ -38,19 +38,24 @@ struct StepNode : std::enable_shared_from_this<StepNode> {
         return get_skeleton(comments);
     }
 
+    bool is_on_inverse() const { return seq.inv_flag; }
+
     template <typename Initializer, typename Solver>
     auto expand(const Initializer &initialize, const Solver &solve,
                 const unsigned max_depth, const unsigned slackness,
                 const bool niss = true) {
+        // init one root, two if we solve inverse as well (niss = true)
+        auto roots = initialize(state, niss);
+        if (is_on_inverse() && niss) {
+            // if we are already on inverse, change root inverse flags
+            roots[0].inverse = true;
+            roots[1].inverse = false;
+        }
+
         auto children = std::vector<StepNode::sptr>{};
-
-        auto root = initialize(state);
-        auto step_sols = solve(root, max_depth, slackness);
-
+        auto step_sols = solve(roots, max_depth, slackness);
         for (auto &&sol : step_sols) {
             Algorithm seq = sol->get_path();
-            seq.inv_flag = this->seq.inv_flag;
-
             CubieCube copy = state;
             copy.apply(seq);
             unsigned d = depth + sol->depth;
@@ -58,24 +63,6 @@ struct StepNode : std::enable_shared_from_this<StepNode> {
                 new StepNode(copy, seq, this->shared_from_this(), d));
         }
 
-        // Solve the inverse
-        if (niss) {
-            CubieCube inv_cc = state.get_inverse();
-            auto root_inv = initialize(inv_cc);
-
-            auto inv_solutions = solve(root_inv, max_depth, slackness);
-
-            for (auto &&sol : inv_solutions) {
-                Algorithm seq = sol->get_path();
-
-                CubieCube copy = inv_cc;
-                copy.apply(seq);
-                seq.inv_flag = !this->seq.inv_flag;
-                unsigned d = depth + sol->depth;
-                children.emplace_back(
-                    new StepNode{copy, seq, this->shared_from_this(), d});
-            }
-        }
         return children;
     }
 };
