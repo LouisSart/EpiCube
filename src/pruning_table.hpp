@@ -83,8 +83,9 @@ struct PruningTable {
 
     template <bool verbose = false, std::size_t NM = 18>
     void generate(const auto &cube, const auto &apply, const auto &index,
-                  const auto &from_index, const unsigned forward_switch_depth,
-                  const unsigned backwards_switch_depth,
+                  const auto &from_index,
+                  const unsigned forward_switch_depth = 3,
+                  const unsigned backwards_switch_depth = 7,
                   const std::array<Move, NM> &moves = HTM_Moves) {
         assert(forward_switch_depth < backwards_switch_depth);
 
