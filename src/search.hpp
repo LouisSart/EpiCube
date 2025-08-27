@@ -67,11 +67,11 @@ Solutions<NodePtr> depth_first_search(const NodePtr root, const Mover &apply,
 
 template <bool verbose = false, typename NodePtr, typename Mover,
           typename Pruner, typename SolveCheck, typename Directions>
-Solutions<NodePtr> IDAstar(
-    const NodePtr root, const Mover &apply, const Pruner &estimate,
-    const SolveCheck &is_solved,
-    const Directions &directions = standard_directions<NodePtr>,
-    const unsigned max_depth = 20, const unsigned slackness = 0) {
+Solutions<NodePtr> IDAstar(const NodePtr root, const Mover &apply,
+                           const Pruner &estimate, const SolveCheck &is_solved,
+                           const Directions &directions,
+                           const unsigned max_depth = 20,
+                           const unsigned slackness = 0) {
     unsigned search_depth = estimate(root->state) + root->depth;
 
     Solutions<NodePtr> solutions;
