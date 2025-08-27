@@ -13,12 +13,13 @@ struct Node : public std::enable_shared_from_this<Node<Cube>> {
     Cube state;      // The cube state this node corresponds to
     sptr parent;     // The shared_ptr to the parent
     unsigned depth;  // The number of moves made to get this state
+    bool inverse;    // True if node belongs to inverse tree
     Move last_move;  // The moves which yielded this state
 
-    Node() : state{Cube()}, parent{nullptr}, depth{0} {}
+    Node() : state{Cube()}, parent{nullptr}, depth{0}, inverse{false} {}
     Node(const Cube &c, const unsigned &d = 0, sptr p = nullptr,
-         const Move &move = D)
-        : state{c}, parent{p}, depth{d}, last_move{move} {}
+         bool inv = false, const Move &move = D)
+        : state{c}, parent{p}, depth{d}, inverse{inv}, last_move{move} {}
 
    public:
     bool is_root() const { return parent == nullptr; }
@@ -31,13 +32,13 @@ struct Node : public std::enable_shared_from_this<Node<Cube>> {
         for (auto &&move : directions) {
             next = state;
             apply(move, next);
-            children.emplace_back(
-                new Node(next, depth + 1, this->shared_from_this(), move));
+            children.emplace_back(new Node(
+                next, depth + 1, this->shared_from_this(), inverse, move));
         }
         return children;
     };
 
-    Algorithm get_path(const bool inverse = false) const {
+    Algorithm get_path() const {
         Algorithm path;
         path.inv_flag = inverse;
         csptr p = this->shared_from_this();
@@ -64,11 +65,8 @@ struct Node : public std::enable_shared_from_this<Node<Cube>> {
 };
 
 template <typename Cube>
-typename Node<Cube>::sptr make_root(const Cube &cube) {
-    return typename Node<Cube>::sptr(new Node(cube, 0));
-}
-
-template <typename Cube>
-typename Node<Cube>::sptr make_node(const Cube &cube, const unsigned &depth) {
-    return typename Node<Cube>::sptr(new Node(cube, depth));
+typename Node<Cube>::sptr make_root(const Cube &cube,
+                                    const bool &inverse = false) {
+    return typename Node<Cube>::sptr(
+        new Node(cube, 0, typename Node<Cube>::sptr{nullptr}, inverse));
 }

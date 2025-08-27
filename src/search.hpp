@@ -17,9 +17,9 @@ struct Solutions : public std::vector<NodePtr> {
                   });
     }
 
-    void show(const bool inverse = false) const {
+    void show() const {
         for (auto node : *this) {
-            node->get_path(inverse).show();
+            node->get_path().show();
         }
     }
 };

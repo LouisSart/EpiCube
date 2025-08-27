@@ -22,13 +22,13 @@ void test_overloads() {
     auto state = CubieCube();
     state.apply(Algorithm("R' U' F"));
     auto root = make_root(state);
-    auto root_inverse = make_root(state.get_inverse());
+    auto root_inverse = make_root(state.get_inverse(), true);
 
     auto solutions =
         IDAstar(std::deque{root, root_inverse}, apply, estimate, is_solved);
 
     for (auto sol : solutions) {
-        sol->get_path(sol->get_root() == root_inverse).show();
+        sol->get_path().show();
     }
 
     solutions = IDAstar(root, apply, estimate, is_solved);
