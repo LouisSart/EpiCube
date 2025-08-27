@@ -8,6 +8,8 @@
 
 template <typename NodePtr>
 struct Solutions : public std::vector<NodePtr> {
+    unsigned best_hope;
+
     void sort_by_depth() {
         std::sort(this->begin(), this->end(),
                   [](const NodePtr node1, const NodePtr node2) {
@@ -38,31 +40,34 @@ Solutions<NodePtr> depth_first_search(const NodePtr root, const Mover &apply,
                                       const SolveCheck &is_solved,
                                       const Directions &directions,
                                       const unsigned max_depth = 4) {
-    Solutions<NodePtr> all_solutions;
-    int node_counter = 0;
+    Solutions<NodePtr> solutions;
+    solutions.best_hope = 100;
+    unsigned node_counter = 0, hope;
     std::deque<NodePtr> queue({root});
 
     while (queue.size() > 0) {
         auto node = queue.back();
         ++node_counter;
         if (is_solved(node->state)) {
-            all_solutions.push_back(node);
+            solutions.push_back(node);
             queue.pop_back();
         } else {
             queue.pop_back();
-            if (node->depth + estimate(node->state) <= max_depth) {
+            hope = node->depth + estimate(node->state);
+            if (hope <= max_depth) {
                 auto children = node->expand(apply, directions(node));
                 for (auto &&child : children) {
                     queue.push_back(child);
                 }
+            } else {
+                solutions.best_hope = std::min(solutions.best_hope, hope);
             }
         }
-        assert(queue.size() < 1000000);  // Avoiding memory flood
     }
     if constexpr (verbose) {
         std::cout << "Nodes generated: " << node_counter << std::endl;
     }
-    return all_solutions;
+    return solutions;
 }
 
 template <bool verbose = false, typename NodePtr, typename Mover,
@@ -81,7 +86,7 @@ Solutions<NodePtr> IDAstar(const NodePtr root, const Mover &apply,
         }
         solutions = depth_first_search<verbose>(
             root, apply, estimate, is_solved, directions, search_depth);
-        ++search_depth;
+        search_depth = solutions.best_hope;
     }
     if constexpr (verbose) {
         std::cout << "Solutions found" << std::endl;
