@@ -1,5 +1,6 @@
 #pragma once
-#include <algorithm>    // std::reverse
+#include <algorithm>  // std::reverse
+#include <deque>
 #include <memory>       // std::shared_ptr
 #include <type_traits>  // is_function_v
 #include <vector>
@@ -109,3 +110,7 @@ auto make_stepper(const Initializer &initialize, const Solver &solve,
 };
 
 struct STEPFINAL {};
+
+template <typename Current, typename... Next>
+auto jaap_multistep(std::deque<StepNode::sptr> queue, Current &step,
+                    Next &...steps) {}

@@ -7,10 +7,10 @@ target_sources(epicube-core INTERFACE
         cubie.hpp
         move.hpp
         move_table.hpp
+        multistep.hpp
         node.hpp
         option.hpp
         pruning_table.hpp
         search.hpp
-        step_node.hpp
         utils.hpp)
 target_include_directories(epicube-core INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
