@@ -1,6 +1,5 @@
 #pragma once
-#include <algorithm>  // std::reverse
-#include <deque>
+#include <algorithm>    // std::reverse
 #include <memory>       // std::shared_ptr
 #include <type_traits>  // is_function_v
 #include <vector>

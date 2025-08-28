@@ -1,7 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <cassert>
-#include <deque>
+#include <vector>
 
 #include "move.hpp"
 #include "node.hpp"
@@ -35,7 +35,7 @@ std::vector<Move> standard_directions(const NodePtr node) {
 
 template <bool verbose = false, typename NodePtr, typename Mover,
           typename Pruner, typename SolveCheck, typename Directions>
-Solutions<NodePtr> depth_first_search(std::deque<NodePtr> queue,
+Solutions<NodePtr> depth_first_search(std::vector<NodePtr> queue,
                                       const Mover &apply,
                                       const Pruner &estimate,
                                       const SolveCheck &is_solved,
@@ -79,14 +79,14 @@ Solutions<NodePtr> depth_first_search(const NodePtr root, const Mover &apply,
                                       const Directions &directions,
                                       const unsigned max_depth = 4) {
     // Overload for solving a single starting position
-    std::deque<NodePtr> queue({root});
+    std::vector<NodePtr> queue({root});
     return depth_first_search<verbose>(queue, apply, estimate, is_solved,
                                        directions, max_depth);
 }
 
 template <bool verbose = false, typename NodePtr, typename Mover,
           typename Pruner, typename SolveCheck, typename Directions>
-Solutions<NodePtr> IDAstar(std::deque<NodePtr> roots, const Mover &apply,
+Solutions<NodePtr> IDAstar(std::vector<NodePtr> roots, const Mover &apply,
                            const Pruner &estimate, const SolveCheck &is_solved,
                            const Directions &directions,
                            const unsigned max_depth = 20,
@@ -140,7 +140,7 @@ Solutions<NodePtr> IDAstar(const NodePtr root, const Mover &apply,
                            const unsigned max_depth = 20,
                            const unsigned slackness = 0) {
     // Overload for solving a single starting position
-    std::deque<NodePtr> queue{root};
+    std::vector<NodePtr> queue{root};
     return IDAstar<verbose>(queue, apply, estimate, is_solved, directions,
                             max_depth, slackness);
 }
@@ -149,7 +149,7 @@ Solutions<NodePtr> IDAstar(const NodePtr root, const Mover &apply,
 // setting a template overload as a default parameter causes errors
 template <bool verbose = false, typename NodePtr, typename Mover,
           typename Pruner, typename SolveCheck>
-Solutions<NodePtr> IDAstar(const std::deque<NodePtr> roots, const Mover &apply,
+Solutions<NodePtr> IDAstar(const std::vector<NodePtr> roots, const Mover &apply,
                            const Pruner &estimate, const SolveCheck &is_solved,
                            const unsigned max_depth = 20,
                            const unsigned slackness = 0) {

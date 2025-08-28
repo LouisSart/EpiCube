@@ -24,7 +24,7 @@ void test_overloads() {
     auto root_inverse = make_root(state.get_inverse(), true);
 
     auto solutions =
-        IDAstar(std::deque{root, root_inverse}, apply, estimate, is_solved);
+        IDAstar(std::vector{root, root_inverse}, apply, estimate, is_solved);
 
     for (auto sol : solutions) {
         sol->get_path().show();
@@ -32,7 +32,7 @@ void test_overloads() {
 
     solutions = IDAstar(root, apply, estimate, is_solved);
     solutions = IDAstar(root, apply, estimate, is_solved, custom_directions);
-    solutions = IDAstar(std::deque{root, root_inverse}, apply, estimate,
+    solutions = IDAstar(std::vector{root, root_inverse}, apply, estimate,
                         is_solved, custom_directions);
 }
 
