@@ -75,54 +75,6 @@ auto make_step_root(const CubieCube &cc) {
 constexpr bool NISS = true;
 constexpr bool NONISS = false;
 
-template <typename Initializer, typename Solver, typename NextStepper>
-auto make_stepper(const Initializer &initialize, const Solver &solve,
-                  const NextStepper &next_stepper, const bool &niss = NISS) {
-    return [&initialize, &solve, &next_stepper, &niss](
-               const std::vector<StepNode::sptr> &prev_step_cc,
-               const unsigned move_budget, const unsigned breadth,
-               const unsigned slackness) -> std::vector<StepNode::sptr> {
-        auto step_cc = std::vector<StepNode::sptr>{};
-        step_cc.reserve(breadth);
-
-        for (auto &&step_node : prev_step_cc) {
-            unsigned depth = step_node->depth;
-            auto children = step_node->expand(initialize, solve,
-                                              move_budget - step_node->depth,
-                                              slackness, niss);
-
-            if (step_cc.size() + children.size() > breadth) {
-                break;  // Do not expand more nodes if breadth is
-                        // reached
-            }
-            step_cc.insert(step_cc.end(), children.begin(), children.end());
-        }
-
-        std::sort(step_cc.begin(), step_cc.end(),
-                  [](const StepNode::sptr &a, const StepNode::sptr &b) {
-                      return a->depth < b->depth;
-                  });
-
-        if constexpr (std::is_invocable_v<
-                          NextStepper, const std::vector<StepNode::sptr> &,
-                          const unsigned, const unsigned, const unsigned>) {
-            return next_stepper(step_cc, move_budget, breadth, slackness);
-        } else {
-            return step_cc;
-        }
-    };
-};
-
-struct STEPFINAL {};
-
-// unsigned shortest_path_length(std::vector<StepNode::sptr> &queue) {
-//     unsigned ret = 200;
-//     for (auto node : queue) {
-//         ret = std::min(ret, node->depth);
-//     }
-//     return ret;
-// }
-
 template <typename Current, typename... Next>
 auto jaap_multistep(std::vector<StepNode::sptr> &queue, unsigned slackness_left,
                     Current &step, Next &...steps) {
