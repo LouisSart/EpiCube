@@ -3,34 +3,121 @@
 #include "node.hpp"
 #include "search.hpp"
 
+// General functions
 void apply(const Move& move, CubieCube& cube) { cube.apply(move); }
+auto expand = make_expander<CubieCube>(
+    [](const Move& move, CubieCube& cc) { cc.apply(move); },
+    standard_directions<Node<CubieCube>::sptr>);
+
+// Step one = solve the UF edge
 bool step_one_is_solved(const CubieCube& cube) {
     return cube.ep[UF] == UF && cube.eo[UF] == 0;
 }
-
 bool step_one_estimate(const CubieCube& cube) {
     if (step_one_is_solved(cube)) return 0;
     return 1;
 }
 
-auto step_one(std::vector<StepNode>& roots, unsigned slackness,
-              unsigned max_depth) {
-    std::vector<Node<CubieCube>::sptr> queue;
-    for (auto root : roots) {
-        queue.push_back(make_root(root.state));
+auto step_one(std::vector<StepNode::sptr>& step_roots, unsigned slackness) {
+    std::vector<typename StepNode::sptr> ret;
+    for (auto step_root : step_roots) {
+        auto root = make_root(step_root->state);
+        auto solutions = IDAstar(root, expand, step_one_estimate,
+                                 step_one_is_solved, 20, slackness);
+        for (auto sol : solutions) {
+            ret.emplace_back(new StepNode(sol->state, sol->get_path(),
+                                          step_root,
+                                          step_root->depth + sol->depth));
+        }
     }
-    auto solutions = IDAstar(queue, apply, step_one_estimate,
-                             step_one_is_solved, max_depth, slackness);
-    solutions.show();
+    return ret;
+}
+
+// Step 2 = solve the UR Edge
+bool step_two_is_solved(const CubieCube& cube) {
+    return step_one_is_solved(cube) && cube.ep[UR] == UR && cube.eo[UR] == 0;
+}
+bool step_two_estimate(const CubieCube& cube) {
+    if (step_two_is_solved(cube)) return 0;
+    return 1;
+}
+
+auto step_two(std::vector<StepNode::sptr>& step_roots, unsigned slackness) {
+    std::vector<typename StepNode::sptr> ret;
+    for (auto step_root : step_roots) {
+        auto root = make_root(step_root->state);
+        auto solutions = IDAstar(root, expand, step_two_estimate,
+                                 step_two_is_solved, 20, slackness);
+        for (auto sol : solutions) {
+            ret.emplace_back(new StepNode(sol->state, sol->get_path(),
+                                          step_root,
+                                          step_root->depth + sol->depth));
+        }
+    }
+    return ret;
+}
+
+// Step 3 = solve the UB Edge
+bool step_three_is_solved(const CubieCube& cube) {
+    return step_two_is_solved(cube) && cube.ep[UB] == UB && cube.eo[UB] == 0;
+}
+bool step_three_estimate(const CubieCube& cube) {
+    if (step_three_is_solved(cube)) return 0;
+    return 1;
+}
+
+auto step_three(std::vector<StepNode::sptr>& step_roots, unsigned slackness) {
+    std::vector<typename StepNode::sptr> ret;
+    for (auto step_root : step_roots) {
+        auto root = make_root(step_root->state);
+        auto solutions = IDAstar(root, expand, step_three_estimate,
+                                 step_three_is_solved, 20, slackness);
+        for (auto sol : solutions) {
+            ret.emplace_back(new StepNode(sol->state, sol->get_path(),
+                                          step_root,
+                                          step_root->depth + sol->depth));
+        }
+    }
+    return ret;
+}
+
+// Step 4 = solve the UL Edge
+bool step_four_is_solved(const CubieCube& cube) {
+    return step_three_is_solved(cube) && cube.ep[UL] == UL && cube.eo[UL] == 0;
+}
+
+bool step_four_estimate(const CubieCube& cube) {
+    if (step_four_is_solved(cube)) return 0;
+    return 1;
+}
+
+auto step_four(std::vector<StepNode::sptr>& step_roots, unsigned slackness) {
+    std::vector<typename StepNode::sptr> ret;
+    for (auto step_root : step_roots) {
+        auto root = make_root(step_root->state);
+        auto solutions = IDAstar(root, expand, step_four_estimate,
+                                 step_four_is_solved, 20, slackness);
+        for (auto sol : solutions) {
+            ret.emplace_back(new StepNode(sol->state, sol->get_path(),
+                                          step_root,
+                                          step_root->depth + sol->depth));
+        }
+    }
+    return ret;
 }
 
 int main() {
     CubieCube cube;
     cube.apply(
-        "R' U' F B2 U2 R2 F2 D2 L2 U2 R2 D B2 L' D F2 U' L2 F D2 L' U' R' U' "
-        "F");
-    StepNode root(cube);
-    std::vector<StepNode> roots{root};
-    step_one(roots, 1, 20);
+        "R' U' F B2 U2 R2 F2 D2 U2 R2 D B2 L' D F2 U' L2 F D2 L' U' R' U' F");
+    auto root = make_step_root(cube);
+    std::vector<StepNode::sptr> roots{root};
+    auto solutions =
+        jaap_multistep(roots, 2, step_one, step_two, step_three, step_four);
+    assert(solutions.size());
+    for (auto sol : solutions) {
+        sol->get_skeleton({"UF", "UR", "UB", "UL"}).show();
+        print("");
+    }
     return 0;
 }
