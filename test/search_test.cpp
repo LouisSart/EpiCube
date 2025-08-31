@@ -4,16 +4,9 @@
 #include "cubie_cube.hpp"
 #include "node.hpp"
 
-auto expand(const Node<CubieCube>::sptr node) {
-    std::vector<Node<CubieCube>::sptr> ret;
-    for (const Move &move : standard_directions(node)) {
-        CubieCube cc = node->state;
-        cc.apply(move);
-        ret.emplace_back(
-            new Node(cc, node->depth + 1, node, node->inverse, move));
-    }
-    return ret;
-}
+auto expand = make_expander<CubieCube>(
+    [](const Move &move, CubieCube &cc) { cc.apply(move); },
+    standard_directions<Node<CubieCube>::sptr>);
 
 bool is_solved(const CubieCube &cube) { return cube.is_solved(); }
 unsigned estimate(const CubieCube &cube) {

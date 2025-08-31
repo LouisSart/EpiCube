@@ -24,20 +24,6 @@ struct Node : public std::enable_shared_from_this<Node<Cube>> {
    public:
     bool is_root() const { return parent == nullptr; }
 
-    template <typename F, typename MoveContainer>
-    std::vector<sptr> expand(const F &apply, const MoveContainer &directions) {
-        // Generates the children of the current node
-        std::vector<sptr> children;
-        Cube next;
-        for (auto &&move : directions) {
-            next = state;
-            apply(move, next);
-            children.emplace_back(new Node(
-                next, depth + 1, this->shared_from_this(), inverse, move));
-        }
-        return children;
-    };
-
     Algorithm get_path() const {
         Algorithm path;
         path.inv_flag = inverse;
@@ -71,13 +57,27 @@ struct Node : public std::enable_shared_from_this<Node<Cube>> {
     }
 };
 
-template <typename Cube>
-std::vector<Move> standard_directions(const std::shared_ptr<Node<Cube>> node) {
+template <typename NodePtr>
+std::vector<Move> standard_directions(const NodePtr node) {
     if (node->parent == nullptr) {
         return default_directions;
     } else {
         return allowed_next(node->last_move);
     }
+}
+
+template <typename Cube, typename Mover, typename Directions>
+auto make_expander(const Mover &apply, const Directions &directions) {
+    return [&apply, &directions](Node<Cube>::sptr node) {
+        std::vector<typename Node<Cube>::sptr> children;
+        for (const Move &move : directions(node)) {
+            Cube cube = node->state;
+            cube.apply(move);
+            children.emplace_back(
+                new Node(cube, node->depth + 1, node, node->inverse, move));
+        }
+        return children;
+    };
 }
 
 template <typename Cube>
