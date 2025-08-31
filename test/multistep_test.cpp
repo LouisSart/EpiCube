@@ -12,22 +12,28 @@ auto expand = make_expander<CubieCube>(
 auto make_stepper(auto& expand, auto& estimate, auto& is_solved) {
     return [&expand, &estimate, &is_solved](
                std::vector<typename StepNode::sptr>& step_roots,
-               unsigned slackness) {
+               unsigned max_depth, unsigned slackness) {
         std::vector<typename StepNode::sptr> ret;
         CubieCube state;
+        unsigned search_depth;
+
         for (auto step_root : step_roots) {
             auto root = make_root(step_root->state);
             auto root_inv = make_root(step_root->state.get_inverse(), true);
             auto roots = std::vector({root, root_inv});
-            auto solutions =
-                IDAstar(roots, expand, estimate, is_solved, 20, slackness);
-            for (auto sol : solutions) {
-                if (sol->inverse)
-                    state = sol->state.get_inverse();
-                else
-                    state = sol->state;
-                ret.emplace_back(new StepNode(state, sol->get_path(), step_root,
-                                              step_root->depth + sol->depth));
+            if (max_depth > step_root->depth) {
+                search_depth = max_depth - step_root->depth;
+                auto solutions = IDAstar(roots, expand, estimate, is_solved,
+                                         search_depth, slackness);
+                for (auto sol : solutions) {
+                    if (sol->inverse)
+                        state = sol->state.get_inverse();
+                    else
+                        state = sol->state;
+                    ret.emplace_back(
+                        new StepNode(state, sol->get_path(), step_root,
+                                     step_root->depth + sol->depth));
+                }
             }
         }
         return ret;
@@ -88,7 +94,7 @@ int main() {
     auto root = make_step_root(cube);
     std::vector<StepNode::sptr> roots{root};
     auto solutions =
-        jaap_multistep(roots, 2, step_one, step_two, step_three, step_four);
+        jaap_multistep(roots, 15, 2, step_one, step_two, step_three, step_four);
     assert(solutions.size());
     for (auto sol : solutions) {
         sol->get_skeleton({"UF", "UR", "UB", "UL"}).show();
@@ -100,14 +106,28 @@ int main() {
     // sys     0m0.005s
 
     // s=1 (debug, no max depth)
-    // real    0m15.192s
-    // user    0m15.200s
-    // sys     0m0.004s
+    // real    0m2.547s
+    // user    0m2.613s
+    // sys     0m0.000s
 
     // s=2 (debug, no max depth)
     // real    11m26.994s
     // user    11m26.980s
     // sys     0m0.056
 
+    // s=0 (debug, max depth)
+    // real    0m0.166s
+    // user    0m0.166s
+    // sys     0m0.000s
+
+    // s=1 (debug, max depth)
+    // real    0m15.108s
+    // user    0m15.352s
+    // sys     0m0.000s
+
+    // s=2 (debug, max depth)
+    // real    0m25.928s
+    // user    0m25.723s
+    // sys     0m0.000
     return 0;
 }

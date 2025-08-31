@@ -72,12 +72,9 @@ auto make_step_root(const CubieCube &cc) {
         new StepNode(cc, Algorithm(), StepNode::sptr{nullptr}, 0));
 }
 
-constexpr bool NISS = true;
-constexpr bool NONISS = false;
-
 template <typename Current, typename... Next>
-auto jaap_multistep(std::vector<StepNode::sptr> &queue, unsigned slackness_left,
-                    Current &step, Next &...steps) {
+auto jaap_multistep(std::vector<StepNode::sptr> &queue, unsigned max_depth,
+                    unsigned slackness_left, Current &step, Next &...steps) {
     // Multistep solver idea from Jaap Scherphuis
     // https://www.jaapsch.net/puzzles/compcube.htm
 
@@ -85,23 +82,24 @@ auto jaap_multistep(std::vector<StepNode::sptr> &queue, unsigned slackness_left,
     if constexpr (sizeof...(steps) == 0) {
         // No slackness in last step
         assert(slackness_left == 0);
-        ret = step(queue, 0);
+        ret = step(queue, max_depth, 0);
     } else if constexpr (sizeof...(steps) == 1) {
         // Penultimate step uses all the remaining slackness
-        solutions = step(queue, slackness_left);
-        ret = jaap_multistep(solutions, 0, steps...);
+        solutions = step(queue, max_depth, slackness_left);
+        ret = jaap_multistep(solutions, max_depth, 0, steps...);
     } else {
-        unsigned shortest_path_length = 100;
+        unsigned best_depth = max_depth;
         for (unsigned s = 0; s <= slackness_left; ++s) {
-            auto step_sol = step(queue, s);
-            solutions = jaap_multistep(step_sol, slackness_left - s, steps...);
+            auto step_sol = step(queue, max_depth, s);
+            solutions = jaap_multistep(step_sol, best_depth, slackness_left - s,
+                                       steps...);
             for (auto sol : solutions) {
-                if (sol->depth < shortest_path_length) {
+                if (sol->depth < best_depth) {
                     ret.clear();  // clear existing solutions cause we
                     // found shorter ones
-                    shortest_path_length = sol->depth;
+                    best_depth = sol->depth;
                 }
-                if (sol->depth == shortest_path_length) {
+                if (sol->depth == best_depth) {
                     ret.push_back(sol);
                 }
             }
