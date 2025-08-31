@@ -110,6 +110,45 @@ auto make_stepper(const Initializer &initialize, const Solver &solve,
 
 struct STEPFINAL {};
 
+// unsigned shortest_path_length(std::vector<StepNode::sptr> &queue) {
+//     unsigned ret = 200;
+//     for (auto node : queue) {
+//         ret = std::min(ret, node->depth);
+//     }
+//     return ret;
+// }
+
 template <typename Current, typename... Next>
-auto jaap_multistep(std::deque<StepNode::sptr> queue, Current &step,
-                    Next &...steps) {}
+auto jaap_multistep(std::vector<StepNode> &queue, unsigned max_depth,
+                    unsigned slackness_left, Current &step, Next &...steps) {
+    // Multistep solver idea from Jaap Scherphuis
+    // https://www.jaapsch.net/puzzles/compcube.htm
+
+    std::vector<StepNode> solutions, ret;
+    if constexpr (sizeof...(steps) == 0) {
+        // No slackness in last step
+        assert(slackness_left == 0);
+        ret = step(queue, max_depth, 0);
+    } else if constexpr (sizeof...(steps) == 1) {
+        // Penultimate step uses all the remaining slackness
+        solutions = step(queue, max_depth, slackness_left);
+        ret = jaap_multistep(solutions, max_depth, 0, steps...);
+    } else {
+        unsigned shortest_path_length = max_depth;
+        for (unsigned s = 0; s <= slackness_left; ++s) {
+            solutions = jaap_multistep(step(queue, s), shortest_path_length,
+                                       slackness_left - s, steps...);
+            for (auto sol : solutions) {
+                if (sol.depth < shortest_path_length) {
+                    // ret.clear(); // clear existing solutions cause we
+                    // found shorter ones
+                    shortest_path_length = sol.depth;
+                }
+                if (sol.depth == shortest_path_length) {
+                    ret.push_back(sol);
+                }
+            }
+        }
+    }
+    return ret;
+}
