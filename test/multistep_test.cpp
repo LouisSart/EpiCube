@@ -94,40 +94,11 @@ int main() {
     auto root = make_step_root(cube);
     std::vector<StepNode::sptr> roots{root};
     auto solutions =
-        jaap_multistep(roots, 15, 2, step_one, step_two, step_three, step_four);
+        jaap_multistep(roots, 6, 2, step_one, step_two, step_three, step_four);
     assert(solutions.size());
     for (auto sol : solutions) {
         sol->get_skeleton({"UF", "UR", "UB", "UL"}).show();
         print("");
     }
-    // s=0 (debug, no max depth):
-    // real    0m0.178s
-    // user    0m0.173s
-    // sys     0m0.005s
-
-    // s=1 (debug, no max depth)
-    // real    0m2.547s
-    // user    0m2.613s
-    // sys     0m0.000s
-
-    // s=2 (debug, no max depth)
-    // real    11m26.994s
-    // user    11m26.980s
-    // sys     0m0.056
-
-    // s=0 (debug, max depth)
-    // real    0m0.166s
-    // user    0m0.166s
-    // sys     0m0.000s
-
-    // s=1 (debug, max depth)
-    // real    0m15.108s
-    // user    0m15.352s
-    // sys     0m0.000s
-
-    // s=2 (debug, max depth)
-    // real    0m25.928s
-    // user    0m25.723s
-    // sys     0m0.000
     return 0;
 }
