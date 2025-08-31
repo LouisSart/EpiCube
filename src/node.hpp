@@ -61,8 +61,24 @@ struct Node : public std::enable_shared_from_this<Node<Cube>> {
         std::cout << "Node object: " << std::endl;
         std::cout << " Depth: " << depth << std::endl;
         std::cout << " Cube type: " << typeid(state).name() << std::endl;
+        std::cout << " Last move: " << last_move << std::endl;
+        std::cout << " Found from: ";
+        if (inverse)
+            std::cout << "inverse";
+        else
+            std::cout << "normal";
+        std::cout << " scramble" << std::endl;
     }
 };
+
+template <typename Cube>
+std::vector<Move> standard_directions(const std::shared_ptr<Node<Cube>> node) {
+    if (node->parent == nullptr) {
+        return default_directions;
+    } else {
+        return allowed_next(node->last_move);
+    }
+}
 
 template <typename Cube>
 typename Node<Cube>::sptr make_root(const Cube &cube,

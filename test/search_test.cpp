@@ -4,17 +4,23 @@
 #include "cubie_cube.hpp"
 #include "node.hpp"
 
-void apply(const Move &move, CubieCube &cube) { cube.apply(move); }
+auto expand(const Node<CubieCube>::sptr node) {
+    std::vector<Node<CubieCube>::sptr> ret;
+    for (const Move &move : standard_directions(node)) {
+        CubieCube cc = node->state;
+        cc.apply(move);
+        ret.emplace_back(
+            new Node(cc, node->depth + 1, node, node->inverse, move));
+    }
+    return ret;
+}
+
 bool is_solved(const CubieCube &cube) { return cube.is_solved(); }
 unsigned estimate(const CubieCube &cube) {
     if (cube.is_solved())
         return 0;
     else
         return 1;
-}
-
-std::vector<Move> custom_directions(const Node<CubieCube>::sptr node) {
-    return {U, U2, U3, R, R2, R2, F, F2, F3};
 }
 
 void test_overloads() {
@@ -24,16 +30,10 @@ void test_overloads() {
     auto root_inverse = make_root(state.get_inverse(), true);
 
     auto solutions =
-        IDAstar(std::vector{root, root_inverse}, apply, estimate, is_solved);
+        IDAstar(std::vector{root, root_inverse}, expand, estimate, is_solved);
+    solutions.show();
 
-    for (auto sol : solutions) {
-        sol->get_path().show();
-    }
-
-    solutions = IDAstar(root, apply, estimate, is_solved);
-    solutions = IDAstar(root, apply, estimate, is_solved, custom_directions);
-    solutions = IDAstar(std::vector{root, root_inverse}, apply, estimate,
-                        is_solved, custom_directions);
+    solutions = IDAstar(root, expand, estimate, is_solved);
 }
 
 int main() { test_overloads(); }
