@@ -73,8 +73,8 @@ auto make_step_root(const CubieCube &cc) {
 }
 
 template <typename Current, typename... Next>
-auto jaap_multistep(std::vector<StepNode::sptr> &queue, unsigned max_depth,
-                    unsigned slackness_left, Current &step, Next &...steps) {
+auto multistep(std::vector<StepNode::sptr> &queue, unsigned max_depth,
+               unsigned slackness_left, Current &step, Next &...steps) {
     // Multistep solver idea from Jaap Scherphuis
     // https://www.jaapsch.net/puzzles/compcube.htm
 
@@ -86,13 +86,13 @@ auto jaap_multistep(std::vector<StepNode::sptr> &queue, unsigned max_depth,
     } else if constexpr (sizeof...(steps) == 1) {
         // Penultimate step uses all the remaining slackness
         solutions = step(queue, max_depth, slackness_left);
-        ret = jaap_multistep(solutions, max_depth, 0, steps...);
+        ret = multistep(solutions, max_depth, 0, steps...);
     } else {
         unsigned best_depth = max_depth;
         for (unsigned s = 0; s <= slackness_left; ++s) {
             auto step_sol = step(queue, max_depth, s);
-            solutions = jaap_multistep(step_sol, best_depth, slackness_left - s,
-                                       steps...);
+            solutions =
+                multistep(step_sol, best_depth, slackness_left - s, steps...);
             for (auto sol : solutions) {
                 if (sol->depth < best_depth) {
                     ret.clear();  // clear existing solutions cause we
@@ -106,4 +106,18 @@ auto jaap_multistep(std::vector<StepNode::sptr> &queue, unsigned max_depth,
         }
     }
     return ret;
+}
+
+template <typename... Steps>
+auto jaap_solver(std::vector<StepNode::sptr> &queue, unsigned max_slackness,
+                 Steps &...steps) {
+    unsigned max_depth = 100;
+    std::vector<StepNode::sptr> solutions;
+    for (auto s = 0; s <= max_slackness; ++s) {
+        print("Searching with", s, "moves of slackness");
+        solutions = multistep(queue, max_depth, s, steps...);
+        max_depth = solutions[0]->depth;
+        print("solutions found at depth", max_depth);
+    }
+    return solutions;
 }

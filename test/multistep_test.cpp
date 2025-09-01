@@ -94,7 +94,7 @@ int main() {
     auto root = make_step_root(cube);
     std::vector<StepNode::sptr> roots{root};
     auto solutions =
-        jaap_multistep(roots, 6, 2, step_one, step_two, step_three, step_four);
+        jaap_solver(roots, 2, step_one, step_two, step_three, step_four);
     assert(solutions.size());
     for (auto sol : solutions) {
         sol->get_skeleton({"UF", "UR", "UB", "UL"}).show();
