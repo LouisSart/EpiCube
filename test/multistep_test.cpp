@@ -9,36 +9,36 @@ auto expand = make_expander<CubieCube>(
     [](const Move& move, CubieCube& cc) { cc.apply(move); },
     standard_directions<Node<CubieCube>::sptr>);
 
-auto make_stepper(auto& expand, auto& estimate, auto& is_solved) {
-    return [&expand, &estimate, &is_solved](
-               std::vector<typename StepNode::sptr>& step_roots,
-               unsigned max_depth, unsigned slackness) {
-        std::vector<typename StepNode::sptr> ret;
-        CubieCube state;
-        unsigned search_depth;
+// auto make_stepper(auto& expand, auto& estimate, auto& is_solved) {
+//     return [&expand, &estimate, &is_solved](
+//                std::vector<typename StepNode::sptr>& step_roots,
+//                unsigned max_depth, unsigned slackness) {
+//         std::vector<typename StepNode::sptr> ret;
+//         CubieCube state;
+//         unsigned search_depth;
 
-        for (auto step_root : step_roots) {
-            auto root = make_root(step_root->state);
-            auto root_inv = make_root(step_root->state.get_inverse(), true);
-            auto roots = std::vector({root, root_inv});
-            if (max_depth > step_root->depth) {
-                search_depth = max_depth - step_root->depth;
-                auto solutions = IDAstar(roots, expand, estimate, is_solved,
-                                         search_depth, slackness);
-                for (auto sol : solutions) {
-                    if (sol->inverse)
-                        state = sol->state.get_inverse();
-                    else
-                        state = sol->state;
-                    ret.emplace_back(
-                        new StepNode(state, sol->get_path(), step_root,
-                                     step_root->depth + sol->depth));
-                }
-            }
-        }
-        return ret;
-    };
-}
+//         for (auto step_root : step_roots) {
+//             auto root = make_root(step_root->state);
+//             auto root_inv = make_root(step_root->state.get_inverse(), true);
+//             auto roots = std::vector({root, root_inv});
+//             if (max_depth > step_root->depth) {
+//                 search_depth = max_depth - step_root->depth;
+//                 auto solutions = IDAstar(roots, expand, estimate, is_solved,
+//                                          search_depth, slackness);
+//                 for (auto sol : solutions) {
+//                     if (sol->inverse)
+//                         state = sol->state.get_inverse();
+//                     else
+//                         state = sol->state;
+//                     ret.emplace_back(
+//                         new StepNode(state, sol->get_path(), step_root,
+//                                      step_root->depth + sol->depth));
+//                 }
+//             }
+//         }
+//         return ret;
+//     };
+// }
 
 // Step one = solve the UF edge
 bool step_one_is_solved(const CubieCube& cube) {
@@ -49,7 +49,8 @@ bool step_one_estimate(const CubieCube& cube) {
     return 1;
 }
 
-auto step_one = make_stepper(expand, step_one_estimate, step_one_is_solved);
+auto step_one =
+    make_stepper<CubieCube>(expand, step_one_estimate, step_one_is_solved);
 
 // Step 2 = solve the UR Edge
 bool step_two_is_solved(const CubieCube& cube) {
@@ -61,7 +62,8 @@ bool step_two_estimate(const CubieCube& cube) {
     return 1;
 }
 
-auto step_two = make_stepper(expand, step_two_estimate, step_two_is_solved);
+auto step_two =
+    make_stepper<CubieCube>(expand, step_two_estimate, step_two_is_solved);
 
 // Step 3 = solve the UB Edge
 bool step_three_is_solved(const CubieCube& cube) {
@@ -73,7 +75,7 @@ bool step_three_estimate(const CubieCube& cube) {
 }
 
 auto step_three =
-    make_stepper(expand, step_three_estimate, step_three_is_solved);
+    make_stepper<CubieCube>(expand, step_three_estimate, step_three_is_solved);
 
 // Step 4 = solve the UL Edge
 bool step_four_is_solved(const CubieCube& cube) {
@@ -84,7 +86,8 @@ bool step_four_estimate(const CubieCube& cube) {
     if (step_four_is_solved(cube)) return 0;
     return 1;
 }
-auto step_four = make_stepper(expand, step_four_estimate, step_four_is_solved);
+auto step_four = make_stepper<CubieCube, false>(expand, step_four_estimate,
+                                                step_four_is_solved);
 
 int main() {
     CubieCube cube;

@@ -6,6 +6,7 @@
 
 #include "algorithm.hpp"
 #include "cubie_cube.hpp"
+#include "node.hpp"
 
 struct StepNode : std::enable_shared_from_this<StepNode> {
     using sptr = std::shared_ptr<StepNode>;
@@ -70,6 +71,40 @@ struct StepNode : std::enable_shared_from_this<StepNode> {
 auto make_step_root(const CubieCube &cc) {
     return typename StepNode::sptr(
         new StepNode(cc, Algorithm(), StepNode::sptr{nullptr}, 0));
+}
+
+template <typename Cube, bool niss = true>
+auto make_stepper(auto &expand, auto &estimate, auto &is_solved) {
+    return [&expand, &estimate, &is_solved](
+               std::vector<typename StepNode::sptr> &step_roots,
+               unsigned max_depth, unsigned slackness) {
+        std::vector<typename StepNode::sptr> ret;
+        CubieCube state;
+        unsigned search_depth;
+
+        for (auto step_root : step_roots) {
+            auto roots = std::vector<typename Node<Cube>::sptr>{
+                make_root(Cube(step_root->state))};
+            if (niss)
+                roots.push_back(
+                    make_root(Cube(step_root->state.get_inverse()), true));
+
+            if (max_depth > step_root->depth) {
+                search_depth = max_depth - step_root->depth;
+                auto solutions = IDAstar(roots, expand, estimate, is_solved,
+                                         search_depth, slackness);
+                for (auto sol : solutions) {
+                    state = step_root->state;
+                    state.apply(
+                        sol->get_path());  // apply from inverse if sol->inverse
+                    ret.emplace_back(
+                        new StepNode(state, sol->get_path(), step_root,
+                                     step_root->depth + sol->depth));
+                }
+            }
+        }
+        return ret;
+    };
 }
 
 template <typename Current, typename... Next>
