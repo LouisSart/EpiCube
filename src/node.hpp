@@ -72,7 +72,7 @@ auto make_expander(const Mover &apply, const Directions &directions) {
         std::vector<typename Node<Cube>::sptr> children;
         for (const Move &move : directions(node)) {
             Cube cube = node->state;
-            cube.apply(move);
+            apply(move, cube);
             children.emplace_back(
                 new Node(cube, node->depth + 1, node, node->inverse, move));
         }
