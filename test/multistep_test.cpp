@@ -9,37 +9,6 @@ auto expand = make_expander<CubieCube>(
     [](const Move& move, CubieCube& cc) { cc.apply(move); },
     standard_directions<Node<CubieCube>::sptr>);
 
-// auto make_stepper(auto& expand, auto& estimate, auto& is_solved) {
-//     return [&expand, &estimate, &is_solved](
-//                std::vector<typename StepNode::sptr>& step_roots,
-//                unsigned max_depth, unsigned slackness) {
-//         std::vector<typename StepNode::sptr> ret;
-//         CubieCube state;
-//         unsigned search_depth;
-
-//         for (auto step_root : step_roots) {
-//             auto root = make_root(step_root->state);
-//             auto root_inv = make_root(step_root->state.get_inverse(), true);
-//             auto roots = std::vector({root, root_inv});
-//             if (max_depth > step_root->depth) {
-//                 search_depth = max_depth - step_root->depth;
-//                 auto solutions = IDAstar(roots, expand, estimate, is_solved,
-//                                          search_depth, slackness);
-//                 for (auto sol : solutions) {
-//                     if (sol->inverse)
-//                         state = sol->state.get_inverse();
-//                     else
-//                         state = sol->state;
-//                     ret.emplace_back(
-//                         new StepNode(state, sol->get_path(), step_root,
-//                                      step_root->depth + sol->depth));
-//                 }
-//             }
-//         }
-//         return ret;
-//     };
-// }
-
 // Step one = solve the UF edge
 bool step_one_is_solved(const CubieCube& cube) {
     return cube.ep[UF] == UF && cube.eo[UF] == 0;

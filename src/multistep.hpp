@@ -38,34 +38,6 @@ struct StepNode : std::enable_shared_from_this<StepNode> {
     Skeleton get_skeleton(std::vector<std::string> &&comments) const {
         return get_skeleton(comments);
     }
-
-    bool is_on_inverse() const { return seq.inv_flag; }
-
-    template <typename Initializer, typename Solver>
-    auto expand(const Initializer &initialize, const Solver &solve,
-                const unsigned max_depth, const unsigned slackness,
-                const bool niss = true) {
-        // init one root, two if we solve inverse as well (niss = true)
-        auto roots = initialize(state, niss);
-        if (is_on_inverse() && niss) {
-            // if we are already on inverse, change root inverse flags
-            roots[0].inverse = true;
-            roots[1].inverse = false;
-        }
-
-        auto children = std::vector<StepNode::sptr>{};
-        auto step_sols = solve(roots, max_depth, slackness);
-        for (auto &&sol : step_sols) {
-            Algorithm seq = sol->get_path();
-            CubieCube copy = state;
-            copy.apply(seq);
-            unsigned d = depth + sol->depth;
-            children.emplace_back(
-                new StepNode(copy, seq, this->shared_from_this(), d));
-        }
-
-        return children;
-    }
 };
 
 auto make_step_root(const CubieCube &cc) {
