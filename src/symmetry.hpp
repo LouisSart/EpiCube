@@ -65,8 +65,8 @@ constexpr auto symmetry_index_to_num(const unsigned index) {
 // conj(c, S) * m = S^-1 * c * S * m
 //                = S^-1 * c * S * S^-1 * S * m * S^-1 * S
 //                = S^-1 * (c * S * m * S^-1) * S
-//                = conj(c * m', S)
-// where m' = S * m * S^-1.
+//                = conj(c * conj(m, S^-1), S)
+// So we only need to store the conjugations for elementary moves
 // This file is where the translation of moves after conjugation
 // by a symmetry is computed
 
@@ -175,3 +175,32 @@ Algorithm anti_symmetrize(const Algorithm &alg, const unsigned &sym_index) {
   }
   return ret;
 }
+
+// In this section the combination between two symmetries is computed
+
+struct CenterCube : std::array<unsigned, 6> {
+  // [U, D, R, L, F, B]
+  // [0, 1, 2, 3, 4, 5]
+  CenterCube(): std::array<unsigned, 6>{0, 1, 2, 3, 4, 5}{}
+  CenterCube(const unsigned &u, const unsigned &d, const unsigned &r,const unsigned &l, const unsigned &f, const unsigned &b): std::array<unsigned, 6>{u, d, r, l, f, b}{}
+
+  void apply(CenterCube &cc){
+    CenterCube new_cc;
+
+    for (unsigned k = 0; k < 6; ++k){
+      new_cc[k] = (*this)[cc[k]];
+    }
+
+    *this = new_cc;
+  }
+
+  unsigned &operator[](const unsigned &k){
+    return std::array<unsigned, 6>::operator[](k);
+  }
+};
+
+
+CenterCube ccurf(4, 5, 0, 1, 2, 3);
+CenterCube ccy(0, 1, 5, 4, 2, 3);
+CenterCube ccz2(1, 0, 3, 2, 4, 5);
+CenterCube cclr(0, 1, 3, 2, 4, 5);

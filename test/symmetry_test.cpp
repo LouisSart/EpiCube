@@ -72,10 +72,18 @@ void test_symmetries() {
   }
 }
 
+void test_combinations() {
+  CenterCube c;
+
+  c.apply(ccurf);
+  // print_array(static_cast<std::array<unsigned, 6>>(c));
+}
+
 int main() {
   test_index();
   test_move_translation();
   test_move_permutation();
   test_symmetries();
+  test_combinations();
   return 0;
 }
