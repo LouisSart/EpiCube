@@ -4,6 +4,8 @@
 #include <tuple>   // symmetry components
 
 #include "algorithm.hpp"
+#include "coordinate.hpp" // perm_coord
+#include "utils.hpp" // print
 
 constexpr unsigned N_SURF = 3;
 constexpr unsigned N_Y = 4;
@@ -181,10 +183,10 @@ Algorithm anti_symmetrize(const Algorithm &alg, const unsigned &sym_index) {
 struct CenterCube : std::array<unsigned, 6> {
   // [U, D, R, L, F, B]
   // [0, 1, 2, 3, 4, 5]
-  CenterCube(): std::array<unsigned, 6>{0, 1, 2, 3, 4, 5}{}
-  CenterCube(const unsigned &u, const unsigned &d, const unsigned &r,const unsigned &l, const unsigned &f, const unsigned &b): std::array<unsigned, 6>{u, d, r, l, f, b}{}
+  constexpr CenterCube(): std::array<unsigned, 6>{0, 1, 2, 3, 4, 5}{}
+  constexpr CenterCube(const unsigned &u, const unsigned &d, const unsigned &r,const unsigned &l, const unsigned &f, const unsigned &b): std::array<unsigned, 6>{u, d, r, l, f, b}{}
 
-  void apply(CenterCube &cc){
+  constexpr void apply(const CenterCube &cc){
     CenterCube new_cc;
 
     for (unsigned k = 0; k < 6; ++k){
@@ -194,13 +196,66 @@ struct CenterCube : std::array<unsigned, 6> {
     *this = new_cc;
   }
 
-  unsigned &operator[](const unsigned &k){
+  constexpr void apply(const unsigned &sym);
+
+  constexpr const unsigned &operator[](const unsigned &k) const {
+    // read only operator []
+    return std::array<unsigned, 6>::operator[](k);
+  }
+
+  constexpr unsigned &operator[](const unsigned &k) {
+    // assignment operator []
     return std::array<unsigned, 6>::operator[](k);
   }
 };
 
 
-CenterCube ccurf(4, 5, 0, 1, 2, 3);
-CenterCube ccy(0, 1, 5, 4, 2, 3);
-CenterCube ccz2(1, 0, 3, 2, 4, 5);
-CenterCube cclr(0, 1, 3, 2, 4, 5);
+constexpr CenterCube ccurf(4, 5, 0, 1, 2, 3);
+constexpr CenterCube ccy(0, 1, 5, 4, 2, 3);
+constexpr CenterCube ccz2(1, 0, 3, 2, 4, 5);
+constexpr CenterCube cclr(0, 1, 3, 2, 4, 5);
+
+constexpr void CenterCube::apply(const unsigned &sym){
+  auto [c_surf, c_y, c_z2, c_lr] = symmetry_index_to_num(sym);
+  
+  for (unsigned k_lr = 0; k_lr < c_lr; ++k_lr) {
+    apply(cclr);
+  }
+  for (unsigned k_z2 = 0; k_z2 < c_z2; ++k_z2) {
+    apply(ccz2);
+  }
+  for (unsigned k_y = 0; k_y < c_y; ++k_y) {
+    apply(ccy);
+  }
+  for (unsigned k_surf = 0; k_surf < c_surf; ++k_surf) {
+    apply(ccurf);
+  }
+}
+
+
+constexpr auto sym_combination = [] {
+  std::array<unsigned, N_SYM> sym_to_perm;
+  
+  for (unsigned s = 0; s < N_SYM; ++s) {
+    CenterCube c;
+    c.apply(s);
+    auto p = permutation_index(c);
+    sym_to_perm[s] = p;
+  }
+
+  std::array<unsigned, N_SYM * N_SYM> ret;
+  for (unsigned s1 = 0; s1< N_SYM; ++s1){
+    for (unsigned s2 = 0; s2< N_SYM; ++s2){
+      CenterCube c;
+      c.apply(s1);
+      c.apply(s2);
+
+      for (unsigned l = 0; l < N_SYM; ++l){
+        if (sym_to_perm[l] == permutation_index(c)){
+          ret[s1 * N_SYM + s2] = l;
+        }
+      }
+    }
+  }
+  return ret;
+}();

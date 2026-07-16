@@ -75,8 +75,14 @@ void test_symmetries() {
 void test_combinations() {
   CenterCube c;
 
+  c.apply(cclr);
+  c.apply(ccz2);
+  c.apply(ccy);
   c.apply(ccurf);
-  // print_array(static_cast<std::array<unsigned, 6>>(c));
+
+  for (unsigned k = 0; k < N_SYM; ++k) {
+    c.apply(k);
+  }
 }
 
 int main() {
