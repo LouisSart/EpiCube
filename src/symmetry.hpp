@@ -258,4 +258,11 @@ void write_binary(const std::filesystem::path& table_path, value_type* ptr,
 
 fs::path table_path = fs::current_path() / "sym_comb_table";
 
-// auto
+auto load_move_comb_table() {
+  if (fs::exists(table_path)) {
+    load_binary<unsigned>(table_path, sym_comb_table.data(), N_SYM * N_SYM);
+  } else {
+    make_sym_comb_table();
+    write_binary<unsigned>(table_path, sym_comb_table.data(), N_SYM * N_SYM);
+  }
+}

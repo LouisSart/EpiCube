@@ -80,6 +80,7 @@ void test_combinations() {
   for (unsigned k = 0; k < N_SYM; ++k) apply_sym(cc, k);
 
   make_sym_comb_table();
+  load_move_comb_table();
 }
 
 int main() {
