@@ -1,3 +1,5 @@
+#include <ctime>
+
 #include "symmetry.hpp"
 
 #include "cubie_cube.hpp"
@@ -73,16 +75,11 @@ void test_symmetries() {
 }
 
 void test_combinations() {
-  CenterCube c;
+  std::string cc = "UDRLFB";
 
-  c.apply(cclr);
-  c.apply(ccz2);
-  c.apply(ccy);
-  c.apply(ccurf);
+  for (unsigned k = 0; k < N_SYM; ++k) apply_sym(cc, k);
 
-  for (unsigned k = 0; k < N_SYM; ++k) {
-    c.apply(k);
-  }
+  make_sym_comb_table();
 }
 
 int main() {
