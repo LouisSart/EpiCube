@@ -1,5 +1,3 @@
-#include <ctime>
-
 #include "symmetry.hpp"
 
 #include "cubie_cube.hpp"
@@ -75,12 +73,18 @@ void test_symmetries() {
 }
 
 void test_combinations() {
-  std::string cc = "UDRLFB";
 
-  for (unsigned k = 0; k < N_SYM; ++k) apply_sym(cc, k);
-
+  // Takes 3ms on my computer
   make_sym_comb_table();
-  load_move_comb_table();
+  // I don't think its worth making a local copy of the table
+
+  for (unsigned s1 = 0; s1 < 1; ++s1) {
+    for (unsigned s2 = 0; s2 < N_SYM; ++s2){
+      for (Move m : HTM_Moves) {
+        assert(move_conj(move_conj(m, s1), s2) == move_conj(m, sym_combine(s1, s2)));
+      }
+    }
+  }
 }
 
 int main() {
