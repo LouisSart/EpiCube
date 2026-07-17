@@ -3,95 +3,95 @@
 #include "cubie_cube.hpp"
 
 void test_index() {
-  for (unsigned c = 0; c < N_SYM; ++c) {
-    auto [i, j, k, l] = symmetry_index_to_num(c);
-    assert(c == symmetry_index(i, j, k, l));
-  }
+    for (unsigned c = 0; c < N_SYM; ++c) {
+        auto [i, j, k, l] = symmetry_index_to_num(c);
+        assert(c == symmetry_index(i, j, k, l));
+    }
 }
 
 void test_move_translation() {
-  assert(S_URF_move_conj[U] == R);
-  assert(z2_move_conj[R3] == L3);
-  assert(y_move_conj[L3] == B3);
+    assert(S_URF_move_conj[U] == R);
+    assert(z2_move_conj[R3] == L3);
+    assert(y_move_conj[L3] == B3);
 }
 
 void test_move_permutation() {
-  auto test_moves = HTM_Moves;
+    auto test_moves = HTM_Moves;
 
-  for (unsigned s = 0; s < N_SYM; ++s) {
-    auto [c_surf, c_y, c_z2, c_lr] = symmetry_index_to_num(s);
+    for (unsigned s = 0; s < N_SYM; ++s) {
+        auto [c_surf, c_y, c_z2, c_lr] = symmetry_index_to_num(s);
 
-    // Permute one way
-    for (unsigned k_lr = 0; k_lr < c_lr; ++k_lr) {
-      permute_moves(test_moves.data(), LR_mirror_move_conj);
-    }
-    for (unsigned k_z2 = 0; k_z2 < c_z2; ++k_z2) {
-      permute_moves(test_moves.data(), z2_move_conj);
-    }
-    for (unsigned k_y = 0; k_y < c_y; ++k_y) {
-      permute_moves(test_moves.data(), y_move_conj);
-    }
-    for (unsigned k_surf = 0; k_surf < c_surf; ++k_surf) {
-      permute_moves(test_moves.data(), S_URF_move_conj);
-    }
+        // Permute one way
+        for (unsigned k_lr = 0; k_lr < c_lr; ++k_lr) {
+            permute_moves(test_moves.data(), LR_mirror_move_conj);
+        }
+        for (unsigned k_z2 = 0; k_z2 < c_z2; ++k_z2) {
+            permute_moves(test_moves.data(), z2_move_conj);
+        }
+        for (unsigned k_y = 0; k_y < c_y; ++k_y) {
+            permute_moves(test_moves.data(), y_move_conj);
+        }
+        for (unsigned k_surf = 0; k_surf < c_surf; ++k_surf) {
+            permute_moves(test_moves.data(), S_URF_move_conj);
+        }
 
-    // Permute backwards
-    for (unsigned k_surf = 0; k_surf < (3 - c_surf) % 3; ++k_surf) {
-      permute_moves(test_moves.data(), S_URF_move_conj);
+        // Permute backwards
+        for (unsigned k_surf = 0; k_surf < (3 - c_surf) % 3; ++k_surf) {
+            permute_moves(test_moves.data(), S_URF_move_conj);
+        }
+        for (unsigned k_y = 0; k_y < (4 - c_y) % 4; ++k_y) {
+            permute_moves(test_moves.data(), y_move_conj);
+        }
+        for (unsigned k_z2 = 0; k_z2 < c_z2; ++k_z2) {
+            permute_moves(test_moves.data(), z2_move_conj);
+        }
+        for (unsigned k_lr = 0; k_lr < c_lr; ++k_lr) {
+            permute_moves(test_moves.data(), LR_mirror_move_conj);
+        }
+        assert(test_moves == HTM_Moves);
     }
-    for (unsigned k_y = 0; k_y < (4 - c_y) % 4; ++k_y) {
-      permute_moves(test_moves.data(), y_move_conj);
-    }
-    for (unsigned k_z2 = 0; k_z2 < c_z2; ++k_z2) {
-      permute_moves(test_moves.data(), z2_move_conj);
-    }
-    for (unsigned k_lr = 0; k_lr < c_lr; ++k_lr) {
-      permute_moves(test_moves.data(), LR_mirror_move_conj);
-    }
-    assert(test_moves == HTM_Moves);
-  }
 }
 
 void test_symmetries() {
-  // Testing that S^-1 * c * S * m == S^-1 * (c * m') * S
-  // with c a random CubieCube for all S, m
-  // CubieCube random = CubieCube::random_state();
-  CubieCube random;
+    // Testing that S^-1 * c * S * m == S^-1 * (c * m') * S
+    // with c a random CubieCube for all S, m
+    // CubieCube random = CubieCube::random_state();
+    CubieCube random;
 
-  for (unsigned s = 0; s < N_SYM; ++s) {
-    for (Move m : HTM_Moves) {
-      CubieCube cc1 = random.get_conjugate(s);
-      cc1.apply(move_conj(m, s));
+    for (unsigned s = 0; s < N_SYM; ++s) {
+        for (Move m : HTM_Moves) {
+            CubieCube cc1 = random.get_conjugate(s);
+            cc1.apply(move_conj(m, s));
 
-      CubieCube cc2 = random;
-      cc2.apply(m);
-      cc2 = cc2.get_conjugate(s);
+            CubieCube cc2 = random;
+            cc2.apply(m);
+            cc2 = cc2.get_conjugate(s);
 
-      assert(cc1 == cc2);
+            assert(cc1 == cc2);
+        }
     }
-  }
 }
 
 void test_combinations() {
+    // Takes 3ms on my computer
+    make_sym_comb_table();
+    // I don't think its worth making a local copy of the table
 
-  // Takes 3ms on my computer
-  make_sym_comb_table();
-  // I don't think its worth making a local copy of the table
-
-  for (unsigned s1 = 0; s1 < 1; ++s1) {
-    for (unsigned s2 = 0; s2 < N_SYM; ++s2){
-      for (Move m : HTM_Moves) {
-        assert(move_conj(move_conj(m, s1), s2) == move_conj(m, sym_combine(s1, s2)));
-      }
+    for (unsigned s1 = 0; s1 < 1; ++s1) {
+        for (unsigned s2 = 0; s2 < N_SYM; ++s2) {
+            for (Move m : HTM_Moves) {
+                assert(move_conj(move_conj(m, s1), s2) ==
+                       move_conj(m, sym_combine(s1, s2)));
+            }
+        }
     }
-  }
 }
 
 int main() {
-  test_index();
-  test_move_translation();
-  test_move_permutation();
-  test_symmetries();
-  test_combinations();
-  return 0;
+    test_index();
+    test_move_translation();
+    test_move_permutation();
+    test_symmetries();
+    test_combinations();
+    return 0;
 }

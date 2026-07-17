@@ -1,4 +1,12 @@
-list(APPEND UNIT_TESTS algorithm coordinate cubie_cube pruning_table search symmetry)
+list(
+  APPEND
+  UNIT_TESTS
+  algorithm
+  coordinate
+  cubie_cube
+  pruning_table
+  search
+  symmetry)
 
 foreach(f ${UNIT_TESTS})
   set(target ${f}_test)

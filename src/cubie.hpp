@@ -1,7 +1,7 @@
 #pragma once
 
 #include <array>
-#include <sstream> // std::string
+#include <sstream>  // std::string
 
 constexpr unsigned NC = 8, NE = 12;
 using Cubie = unsigned;
@@ -17,11 +17,11 @@ std::array<std::string, NE + 1> edge_str{"UF", "UR", "UB", "UL", "LF",
                                          "DB", "DL", "-"};
 
 std::ostream &operator<<(std::ostream &os, const Corner &c) {
-  os << corner_str[c];
-  return os;
+    os << corner_str[c];
+    return os;
 }
 
 std::ostream &operator<<(std::ostream &os, const Edge &e) {
-  os << edge_str[e];
-  return os;
+    os << edge_str[e];
+    return os;
 }
