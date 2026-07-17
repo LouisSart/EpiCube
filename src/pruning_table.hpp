@@ -103,7 +103,7 @@ struct PruningTable {
             distribution.push_back(nodes);
         }
 
-        bool keep_forward = true;
+        // bool keep_forward = true; // CHECKME: Is that useful ?
         if constexpr (verbose) print("switch to forwards scan");
         while (fill_depth < backwards_switch_depth) {
             // Forward scan is efficient up to the level with most nodes
