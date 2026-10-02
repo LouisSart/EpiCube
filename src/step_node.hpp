@@ -48,8 +48,8 @@ struct StepNode : std::enable_shared_from_this<StepNode> {
         auto roots = initialize(state, niss);
         if (is_on_inverse() && niss) {
             // if we are already on inverse, change root inverse flags
-            roots[0].inverse = true;
-            roots[1].inverse = false;
+            roots[0]->inverse = true;
+            roots[1]->inverse = false;
         }
 
         auto children = std::vector<StepNode::sptr>{};
