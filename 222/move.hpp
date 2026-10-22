@@ -8,5 +8,5 @@ constexpr unsigned N_SYM = 6;
 
 enum Move {U, U2, U3, R, R2, R3, F, F2, F3};
 std::ostream &operator<<(std::ostream &os, const Move &m);
-
+extern std::array<Move, N_MOVE> moves;
 }; // namespace Cube222

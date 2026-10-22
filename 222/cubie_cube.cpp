@@ -18,7 +18,7 @@ std::ostream &operator<<(std::ostream &os, const Move &m) {
     }
     return os;
 }
-
+std::array<Move, N_MOVE> moves{U, U2, U3, R, R2, R3, F, F2, F3};
 
 static Permutation<NC - 1> U_cp {3, 0, 1, 2, 4, 5, 6}; // U move corner permutation
 static Permutation<NC - 1> SURF_cp {5, 4, 0, 3, 6, 2, 1}; // Rotation around the URF corner
@@ -67,7 +67,15 @@ void CubieCube::apply(const Sequence<Move> &seq) {
 }
 
 unsigned CubieCube::index() const {
-    return cp.index();
+    return co.index(true) * NCP + cp.index();
+}
+
+void CubieCube::from_index(const unsigned &c) {
+    assert(c < CARD);
+    unsigned cco = c / NCP;
+    unsigned ccp = c % NCP;
+    cp.set_from_index(ccp);
+    co.set_from_index(cco, true);
 }
 
 void CubieCube::show() const {

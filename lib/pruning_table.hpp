@@ -9,7 +9,6 @@
 #include <fstream>     // write tables into files
 #include <limits>      // std::numeric_limits
 #include <memory>      // std::shared_ptr
-#include "fto.hpp"
 #include "utils.hpp"
 
 namespace fs = std::filesystem;
