@@ -1,0 +1,75 @@
+#pragma once
+#include <algorithm>   // std::fill, std::all_of
+#include <filesystem>  // locate table files
+#include <fstream>     // write tables into files
+#include <memory>      // std::shared_ptr
+#include <cassert>     // assert
+#include "utils.hpp"
+
+namespace fs = std::filesystem;
+
+template <unsigned N, unsigned NMOVES>
+struct MoveTable {
+    std::shared_ptr<unsigned[]> table{new unsigned[N * NMOVES]};
+
+    MoveTable() { std::fill(table.get(), table.get() + N, N); }
+
+    template <typename Cube, bool verbose = false>
+    void compute(unsigned (*index)(const Cube&), void (*from_index)(const unsigned&, Cube&), const auto moves) {
+        // index : a function that takes in a Cube instance and returns
+        // some coordinate for it
+        // from_index : a function that takes in a
+        // coordinate value and  a Cube, and sets the cube object to a corresponding state
+
+        if constexpr (verbose) {
+            print("Building move table of size", N, "for", NMOVES, "moves");
+        }
+
+        Cube cc;
+        for (unsigned c = 0; c < N; ++c) {
+            if constexpr (verbose) {
+                if (c % (N / 10) == 0) print(c / (N / 10) * 10, "%");
+            }
+            from_index(c, cc);
+            for (unsigned m = 0; m < NMOVES; ++m) {
+                auto buffer_cc = cc;
+                buffer_cc.apply(moves[m]);
+                auto ii = index(buffer_cc);
+                table[c * NMOVES + m] = ii;
+                assert(ii < N);
+            }
+        }
+        assert(is_filled());
+    }
+
+    bool is_filled() const {
+        // Check if all entries are assigned
+        return std::all_of(table.get(), table.get() + N * NMOVES,
+                           [](const unsigned &e) { return e < N; });
+    }
+
+    template<typename Move>
+    void apply(const Move &m, unsigned &c) { c = table[c * NMOVES + m]; }
+
+    bool load(fs::path table_path) {
+        if (fs::exists(table_path)) {
+            std::ifstream istrm(table_path, std::ios::binary);
+            istrm.read(reinterpret_cast<char *>(table.get()),
+                       sizeof(unsigned) * N * NMOVES);
+            istrm.close();
+            assert(is_filled());
+            return true;
+        } else {
+            print("Move table not found at: ", table_path);
+        }
+        return false;
+    }
+
+    void write(fs::path table_path) const {
+        fs::create_directories(table_path.parent_path());
+        std::ofstream file(table_path, std::ios::binary);
+        file.write(reinterpret_cast<const char *>(table.get()),
+                   sizeof(unsigned) * N * NMOVES);
+        file.close();
+    }
+};

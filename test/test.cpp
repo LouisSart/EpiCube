@@ -1,0 +1,121 @@
+#include "permutation.hpp"
+
+#include <set>
+#include <cassert>
+
+int main(int argc, const char* argv[]) {
+
+    // Test if indexing is correct
+    Permutation<6> p;
+    unsigned psize = factorial(3);
+    for(unsigned c = 0; c < p.cardinality(); ++c) { // Any parity
+        p.set_from_index(c);
+        assert(p.index() == c);
+
+        auto [cl, p1, p2] = p.split_indices();
+        unsigned e = (cl * psize + p1) * psize + p2;
+        // assert(e < p.cardinality() - 1); // this fails (good !)
+        assert(e < p.cardinality()); // this doesn't (perfect !)
+
+        p.set_from_split_indices(cl, p1, p2);
+        assert(p.index() == c);
+    }
+    Permutation<6, true> q;
+    q.random_state();
+    assert(q.parity() == 0);
+    q.reset();
+    for(unsigned c = 0; c < q.cardinality(); ++c) { // Even parity only
+        q.set_from_index(c);
+        assert(q.index() == c);
+
+        auto [cl, p1, p2] = q.split_indices();
+        q.set_from_split_indices(cl, p1, p2);
+        assert(q.parity() == 0);
+        assert(q.index() == c);
+    }
+    unsigned card = Layout<11, 4>::CARD * Permutation<4>::CARD;
+    Permutation<11> r;
+    for(unsigned c = 0; c < card; ++c) { // Any parity
+        r.set_from_partial_index<4>(c, {1,3,5,7});
+        assert(r.partial_index<4>({1,3,5,7}) == c);
+    }
+    Orientation<7> o; // even orientations
+    o.random_state();
+    o.reset();
+    for (unsigned k = 0; k < o.cardinality(); ++k) {
+        o.set_from_index(k);
+        assert(o.index() == k);
+    }
+    Orientation<6, false> O; // any orientation
+    for (unsigned k = 0; k < O.cardinality(); ++k) {
+        O.set_from_index(k);
+        assert(O.index() == k);
+    }
+    Layout<10, 3> l;
+    l.random_state();
+    l.reset();
+    for (unsigned c = 0; c < l.cardinality(); ++c){
+        l.set_from_index(c);
+        assert(l.index() == c);
+    }
+    Center<12, 4> center;
+    center.random_state();
+    center.reset();
+    for (unsigned c = 0; c < center.cardinality(); ++c){
+        center.set_from_index(c);
+        assert(center.index() == c);
+    }
+
+    // Tests on inverse and conjugation
+    Permutation<12> aa, conj;
+    aa.random_state();
+    conj.random_state();
+    auto i = aa.get_inverse();
+    auto bb = aa.get_conjugate(conj);
+    bb.compose(i.get_conjugate(conj));
+    assert(bb.is_solved());
+
+    // // Test on edge coordinate symmetry
+    // CubieFTO c1, c2;
+    // auto scramble = random_moves(13);
+    // for (auto m : scramble) {
+    //     c1.apply(m);
+    //     c2.apply(zSHIFT[m]);
+    //     EdgeComb ec1(c1.ep.get_conjugate(z_edge)), ec2(c2.ep);
+    //     assert(edge_comb_index(ec2) == edge_comb_index(ec1));
+    // }
+
+    // // Some testing on sequences and moves
+    // auto node = make_root(CubieFTO(), true);
+    // for (unsigned k = 0; k < NMOVES; ++k) {
+    //     node = node->expand(moves)[k];
+    // }
+    // node->get_path<Move>();
+    // auto root = node->get_root();
+    // allowed_next(bL);
+
+    // MoveTable<CORNER_CARD, NMOVES> cmt;
+    // cmt.compute<CubieFTO>(corner_index, corners_from_index, moves);
+
+    // generate_move_tables();
+    // generate_corner_table();
+    // generate_corner_z_shift_table();
+
+    // FTO cube;
+    // for (auto m : seq) {
+    //     cube.apply(m);
+    // }
+    // assert(cube.cp == 0);
+    // assert(cube.e1 == 0);
+    // assert(cube.e2 == 0);
+    // assert(cube.tri1 == 0);
+    // assert(cube.tri2 == 0);
+
+    // FTO cube1, cube2;
+    // cube1.apply(scramble);
+    // for (auto m : scramble) cube2.apply(zSHIFT[m]);
+    // assert(cube1.tri2 == cube2.tri1);
+    // assert(triplet2_index(cube1) == triplet_index(cube2));
+
+    return 0;
+}
