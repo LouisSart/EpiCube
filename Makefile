@@ -17,7 +17,7 @@ permutation: obj $(LIB)
 
 222: $(TEST_DIR)/222.cpp $(OBJ_DIR)/222.o
 	$(CXX) $(STD) $(OPT) $(INC) -c $(TEST_DIR)/222.cpp -o $(OBJ_DIR)/222_test.o
-	$(CXX) $(STD) $(OPT) $(INC) $(OBJ_DIR)/222.o  $(OBJ_DIR)/222_test.o -o $(OBJ_DIR)/222
+	$(CXX) $(STD) $(OPT) $(INC) $(OBJ_DIR)/222.o  $(OBJ_DIR)/222_test.o -o $(OBJ_DIR)/222_test
 
 $(OBJ_DIR)/222.o: $(LIB) $(222SRC)
 	$(CXX) $(STD) $(OPT) $(INC) -c $(222SRC) -o $(OBJ_DIR)/222.o
