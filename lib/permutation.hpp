@@ -160,7 +160,7 @@ struct Layout : std::array<unsigned, N> {
     }
 };
 
-template<unsigned N, bool even = false>
+template<unsigned N>
 struct Permutation : std::array<unsigned, N> {
 
     Permutation() { // Constructeur sans arguments
@@ -176,7 +176,7 @@ struct Permutation : std::array<unsigned, N> {
     template<typename... Args>
     Permutation(Args... args) : std::array<unsigned, N>{{ static_cast<unsigned>(args)... }} {} // Constructeur par brace-enclosed
 
-    void random_state() {
+    void random_state(const bool even = false) {
         random_shuffle(*this);
         if (even && parity() != 0) {
             swap(N - 1, N - 2, *this);
@@ -190,11 +190,10 @@ struct Permutation : std::array<unsigned, N> {
         return true;
     }
 
-    static constexpr unsigned cardinality() {
-        if constexpr (even) return factorial(N) / 2;
-        return factorial(N);
+    static constexpr unsigned cardinality() { // CHECKME : unneccessary ?
+        return CARD;
     }
-    static constexpr unsigned CARD = cardinality();
+    static constexpr unsigned CARD = factorial(N);
 
     unsigned parity() const {
         std::set<unsigned> visited;
@@ -220,15 +219,14 @@ struct Permutation : std::array<unsigned, N> {
         }
     }
 
-    void compose(const Permutation<N, even> & other) {
+    void compose(const Permutation<N> & other) {
         auto ret = *this;
         for (unsigned k = 0; k < N; ++k){
             this->operator[](k) = ret[other[k]];
         }
     }
 
-    template<bool other_even>
-    auto get_conjugate(const Permutation<N, other_even> &p) const {
+    auto get_conjugate(const Permutation<N> &p) const {
         // return p^-1 o (*this) o p
         auto ret = p.get_inverse();
         ret.compose(*this);
@@ -236,21 +234,21 @@ struct Permutation : std::array<unsigned, N> {
         return ret;
     }
 
-    Permutation<N, even> get_inverse() const {
-        Permutation<N, even> ret;
+    Permutation<N> get_inverse() const {
+        Permutation<N> ret;
         for (unsigned k = 0; k < N; ++k) {
             ret[(*this)[k]] = k;
         };
         return ret;
     }
 
-    unsigned index() const {
+    unsigned index(const bool even = false) const {
         // Compute the lexicographic index of the permutation
         static_assert(N > 0); // empty permutations are a problem
         // If the permutation necessarily has even parity,
         // do not encode the information of the last two digits
         unsigned n;
-        if constexpr (even) {n = N - 1;
+        if (even) {n = N - 1;
             assert(N > 2); // trivial case do not implement
         }
         else n = N;
@@ -265,12 +263,12 @@ struct Permutation : std::array<unsigned, N> {
         return t;
     }
 
-    void set_from_index(unsigned c) {
+    void set_from_index(unsigned c, const bool even = false) {
         // Reconstruct the permutation having index c
         static_assert(N > 0); // empty permutations are a problem
-        assert(c < CARD);
 
-        if constexpr (even) {
+        if (even) {
+            assert(c < CARD / 2);
             assert(N > 2); // trivial case do not implement
             unsigned s = 0;
             (*this)[N - 1] = 1;
@@ -287,6 +285,7 @@ struct Permutation : std::array<unsigned, N> {
             }
             if (s % 2 == 1) swap(N - 1, N - 2, *this);
         } else {
+            assert(c < CARD);
             (*this)[N - 1] = 0;
             for (unsigned i = N - 2; i < N; --i) {
                 (*this)[i] = (c % (N - i));
@@ -300,12 +299,12 @@ struct Permutation : std::array<unsigned, N> {
         }
     }
 
-    template<unsigned M, bool sub_even = false>
-    Permutation<M, sub_even> get_sub_permutation() const {
+    template<unsigned M>
+    Permutation<M> get_sub_permutation() const {
         // returns the sub permutation for values
         // 0 to M - 1
         static_assert(M < N);
-        Permutation<M, sub_even> ret;
+        Permutation<M> ret;
         auto it = ret.begin();
         for (unsigned k : *this) {
             if (k < M) {
@@ -316,12 +315,12 @@ struct Permutation : std::array<unsigned, N> {
         return ret;
     }
 
-    template<unsigned M, bool sub_even = false>
-    Permutation<M, sub_even> get_sub_permutation_complement() const {
+    template<unsigned M>
+    Permutation<M> get_sub_permutation_complement() const {
         // returns the sub permutation for values
         // M to N - 1
         static_assert(M < N);
-        Permutation<M, sub_even> ret;
+        Permutation<M> ret;
         auto it = ret.begin();
         for (unsigned k : *this) {
             if (k >= M) {
@@ -332,12 +331,12 @@ struct Permutation : std::array<unsigned, N> {
         return ret;
     }
 
-    template<long unsigned M, bool sub_even = false>
-    Permutation<M, sub_even> get_sub_permutation(const std::array<unsigned, M> &pieces) const {
+    template<long unsigned M>
+    Permutation<M> get_sub_permutation(const std::array<unsigned, M> &pieces) const {
         // returns the sub permutation of elements in
         // array pieces
         static_assert(M < N);
-        Permutation<M, sub_even> ret;
+        Permutation<M> ret;
         unsigned i = 0;
         for (unsigned k : *this) {
             auto it = std::find(pieces.begin(), pieces.end(), k);
@@ -385,18 +384,18 @@ struct Permutation : std::array<unsigned, N> {
         }
     }
 
-    template<long unsigned M, bool sub_even = false>
+    template<long unsigned M>
     unsigned partial_index(const std::array<unsigned, M> &pieces) const {
         static_assert(M < N);
         Layout<N, M> l(*this, pieces);
-        Permutation<M, sub_even> p = get_sub_permutation<M, sub_even>(pieces);
+        Permutation<M> p = get_sub_permutation<M>(pieces);
         
         return l.index() * p.cardinality() + p.index();
     }
     
-    template<long unsigned M, bool sub_even = false>
+    template<long unsigned M>
     void set_from_partial_index(const unsigned &c, const std::array<unsigned, M> &pieces) {
-        Permutation<M> p(c % Permutation<M, sub_even>::CARD);
+        Permutation<M> p(c % Permutation<M>::CARD);
         Layout<N, M> l(c / Permutation<M>::CARD);
 
         unsigned k = 0;
@@ -411,13 +410,17 @@ struct Permutation : std::array<unsigned, N> {
     }
 };
 
-template<unsigned N, unsigned v = 2, bool even = true>
+template<unsigned N>
+void permute(std::array<unsigned, N> &items, const Permutation<N> &perm) {
+    std::array<unsigned, N> buf = items;
+    for (unsigned k = 0; k < N; ++k){
+        items[k] = buf[perm[k]];
+    }
+}
+
+template<unsigned N, unsigned v = 2>
 struct Orientation : std::array<unsigned, N> {
     // array that stores the orientations of N pieces modulo v
-    // if an Orientation is even, then the total
-    // orientation of the pieces is 0 modulo v.
-    // In this case the orientation of the last piece
-    // is forced by the others.
 
     Orientation() { // Constructeur sans arguments
         std::array<unsigned, N>::fill(0);
@@ -425,21 +428,24 @@ struct Orientation : std::array<unsigned, N> {
     template<typename... Args>
     Orientation(Args... args) : std::array<unsigned, N>{{ static_cast<unsigned>(args)... }} {} // Constructeur par brace-enclosed
 
-    static constexpr unsigned cardinality() {
-        if constexpr (even) return ipow(v, N - 1);
-        return ipow(v, N);
+    static constexpr unsigned CARD = ipow(v, N);
+    static constexpr unsigned cardinality() { // CHECKME : unnecessary ?
+        return CARD;
     }
-    static constexpr unsigned CARD = cardinality();
 
     void reset() {
         std::array<unsigned, N>::fill(0);
     }
 
-    unsigned index() const {
+    unsigned index(const bool even = false) const {
+        // if an Orientation is even, then the total
+        // orientation of the pieces is 0 modulo v.
+        // In this case the orientation of the last piece
+        // is forced by the others.
         static_assert(N > 0); // 0 size orientations are a no go
 
         unsigned n;
-        if constexpr (even) { // most puzzles have a 0 net orientation
+        if (even) { // most puzzles have a 0 net orientation
             assert(N > 1); // trivial case
             n = N - 1;
         }
@@ -455,16 +461,19 @@ struct Orientation : std::array<unsigned, N> {
         return ret;
     }
 
-    void set_from_index(unsigned c) {
+    void set_from_index(unsigned c, const bool even = false) {
         static_assert(N > 0); // 0 size orientations are a no go
 
         unsigned n;
-        if constexpr (even) {
+        if (even) {
             assert(N > 1); // trivial case
+            assert(c < CARD / v);
             n = N - 1;
-            unsigned s = 0;
         }
-        else n = N;
+        else {
+            assert(c < CARD);
+            n = N;
+        }
         
         unsigned s = 0; // unused for non even global orientation
         for (unsigned i = n - 1; i < N; --i){
@@ -472,7 +481,7 @@ struct Orientation : std::array<unsigned, N> {
             s += (*this)[i];
             c = c / v;
         }
-        if constexpr (even) {
+        if (even) {
             (*this)[n] = (v - (s % v)) % v;
         }
     }
@@ -484,22 +493,24 @@ struct Orientation : std::array<unsigned, N> {
         return true;
     }
 
-    template<bool perm_even>
-    void compose(const Permutation<N, perm_even> &perm, const Orientation<N, v, even> &ori) {
-        std::array<unsigned, N> buf = *this;
+    void permute(const Permutation<N> &perm) {
+        permute(*this, perm);
+    }
+
+    void compose(const Orientation<N, v> &ori) {
         for (unsigned k = 0; k < N; ++k){
-            (*this)[k] = (buf[perm[k]] + ori[k]) % v;
+            (*this)[k] = ((*this)[k] + ori[k]) % v;
         }
     }
 
-    void random_state() {
+    void random_state(const bool even = false) {
         srand(time(0));
         unsigned p = 0;
         for (unsigned i = 0; i < N - 1; ++i) {
             (*this)[i] = rand() % v;
             p += (*this)[i];
         }
-        if constexpr (even) {
+        if (even) {
             (*this)[N - 1] = (v - p % v) % v;
         } else {
             (*this)[N - 1] = rand() % v;
@@ -595,11 +606,3 @@ struct Center : std::array<unsigned, N> {
         }
     }
 };
-
-template<unsigned N, bool even>
-void permute(std::array<unsigned, N> &items, const Permutation<N, even> &perm) {
-    std::array<unsigned, N> buf = items;
-    for (unsigned k = 0; k < N; ++k){
-        items[k] = buf[perm[k]];
-    }
-}
