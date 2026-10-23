@@ -417,6 +417,14 @@ Permutation<N> operator*(const Permutation<N> &p1, const Permutation<N> &p2) {
     return ret;
 }
 
+template<unsigned N>
+bool operator==(const Permutation<N> &p1, const Permutation<N> &p2) {
+    for (unsigned k = 0; k < N; ++k) {
+        if (p1[k] != p2[k]) return false;
+    }
+    return true;
+}
+
 template<typename array_t, unsigned N>
 void permute(array_t &items, const Permutation<N> &perm) {
     auto buf = items;
@@ -539,6 +547,14 @@ Orientation<N, v> operator*(const Orientation<N, v> &o, const Permutation<N> &p)
     Orientation<N, v> ret = o;
     permute(ret, p);
     return ret;
+}
+
+template<unsigned N, unsigned v>
+bool operator==(const Orientation<N, v> &o1, const Orientation<N, v> &o2) {
+    for (unsigned k = 0; k < N; ++k) {
+        if (o1[k] != o2[k]) return false;
+    }
+    return true;
 }
 
 template<unsigned N, unsigned M>
