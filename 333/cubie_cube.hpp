@@ -186,19 +186,7 @@ struct CubieCube {
     //     return true;
     // }
 
-    // bool is_solvable() const {
-    //     if (!has_consistent_co()) {
-    //         return false;
-    //     }
-    //     if (!has_consistent_eo()) {
-    //         return false;
-    //     }
-    //     if (corner_parity() != edge_parity()) {
-    //         return false;
-    //     }
-    //     return true;
-    // }
-
+    bool is_solvable() const;
     bool is_solved() const;
     static CubieCube random_state();
 };

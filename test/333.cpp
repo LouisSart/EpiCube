@@ -54,35 +54,35 @@ void test_copy_constructor() {
     assert(cc == cc_copy);
 }
 
-// void test_parity() {
-//     auto cube = CubieCube();
+void test_parity() {
+    auto cube = CubieCube();
 
-//     cube.apply(corner_3_cycle);
-//     assert(cube.corner_parity() == 1);
+    cube.apply(corner_3_cycle);
+    assert(cube.cp.parity() == 0);
 
-//     cube.apply(edge_3_cycle);
-//     assert(cube.edge_parity() == 1);
+    cube.apply(edge_3_cycle);
+    assert(cube.ep.parity() == 0);
 
-//     cube.apply(Tperm);
-//     assert(cube.corner_parity() == -1);
-//     assert(cube.edge_parity() == -1);
+    cube.apply(Tperm);
+    assert(cube.cp.parity() == 1);
+    assert(cube.ep.parity() == 1);
 
-//     cube.apply(no_effect);
-//     assert(cube.corner_parity() == -1);
-//     assert(cube.edge_parity() == -1);
+    cube.apply(no_effect);
+    assert(cube.cp.parity() == 1);
+    assert(cube.ep.parity() == 1);
 
-//     cube.apply(random_moves);
-//     assert(cube.edge_parity() == -1);
-//     assert(cube.corner_parity() == -1);
+    cube.apply(random_moves);
+    assert(cube.ep.parity() == 1);
+    assert(cube.cp.parity() == 1);
 
-//     assert(cube.is_solvable());
-// }
+    assert(cube.is_solvable());
+}
 
-// void test_random_state() {
-//     auto cube = CubieCube::random_state();
-//     assert(cube.is_solvable());
-//     assert(!cube.is_solved());  // This could fail once in a while tho...
-// }
+void test_random_state() {
+    auto cube = CubieCube::random_state();
+    assert(cube.is_solvable());
+    assert(!cube.is_solved());  // This could fail once in a while tho...
+}
 
 // void test_inverse() {
 //     auto cube = CubieCube::random_state();
@@ -106,8 +106,8 @@ void test_copy_constructor() {
 int main() {
     test_move_apply();
     test_copy_constructor();
-    // test_parity();
-    // test_random_state();
+    test_parity();
+    test_random_state();
     // test_inverse();
     // test_conjugation();
     return 0;

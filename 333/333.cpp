@@ -129,6 +129,19 @@ void CubieCube::show() const {
     print_array(eo);
 };
 
+bool CubieCube::is_solvable() const {
+    if (!co.is_even()) {
+        return false;
+    }
+    if (!eo.is_even()) {
+        return false;
+    }
+    if (cp.parity() != ep.parity()) {
+        return false;
+    }
+    return true;
+}
+
 bool CubieCube::is_solved() const {
     if (!cp.is_solved()) return false;
     if (!co.is_solved()) return false;
@@ -140,10 +153,10 @@ bool CubieCube::is_solved() const {
 CubieCube CubieCube::random_state() {
     CubieCube cube;
     cube.cp.random_state();
-    cube.co.random_state();
+    cube.co.random_state(true);
     cube.ep.random_state();
-    cube.eo.random_state();
-
+    cube.eo.random_state(true);
+    if (cube.ep.parity() != cube.cp.parity()) swap(0, 1, cube.ep);
     return cube;
 }
 

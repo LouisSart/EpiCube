@@ -531,6 +531,14 @@ struct Orientation : std::array<unsigned, N> {
             (*this)[N - 1] = rand() % v;
         }
     }
+
+    bool is_even() const {
+        unsigned sum = 0;
+        for (unsigned k : *this) {
+            sum += k;
+        }
+        return (sum % v == 0);
+    }
 };
 
 template<unsigned N, unsigned v>
