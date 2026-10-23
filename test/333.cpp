@@ -3,13 +3,6 @@
 #include "../333/move.hpp"
 
 using namespace Cube333;
-
-void move_test() {
-    print_array(HTM::moves);
-    Sequence<Move> seq {R, U, R3, U3, R3, F, R2, U3, R3, U3, R, U, R3, F3};
-    seq.show();
-}
-
 auto no_effect = make_sequence("R U R' F' U2 L' U' L F U2");
 auto Tperm = make_sequence("R U R' U' R' F R2 U' R' U' R U R' F'");
 auto corner_3_cycle = make_sequence("R U R' D R U' R' D'");
@@ -17,7 +10,6 @@ auto edge_3_cycle = make_sequence("R L' U2 R' L F2");
 auto random_moves = make_sequence("R F' U D' U R B' U' R' D' F2 L2");
 
 void test_move_apply() {
-    edge_3_cycle.show();
     auto cube = CubieCube();
 
     cube.apply(no_effect);
@@ -47,8 +39,76 @@ void test_move_apply() {
     assert(cube == cube_check);
 }
 
-int main(){
-    move_test();
+void test_copy_constructor() {
+    CubieCube cc = CubieCube::random_state();
+    CubieCube cc_copy;
+
+    cc_copy = cc;
+    assert(&cc != &cc_copy);
+    assert(cc == cc_copy);
+
+    cc_copy.apply(random_moves);
+    assert(cc != cc_copy);
+
+    cc.apply(random_moves);
+    assert(cc == cc_copy);
+}
+
+// void test_parity() {
+//     auto cube = CubieCube();
+
+//     cube.apply(corner_3_cycle);
+//     assert(cube.corner_parity() == 1);
+
+//     cube.apply(edge_3_cycle);
+//     assert(cube.edge_parity() == 1);
+
+//     cube.apply(Tperm);
+//     assert(cube.corner_parity() == -1);
+//     assert(cube.edge_parity() == -1);
+
+//     cube.apply(no_effect);
+//     assert(cube.corner_parity() == -1);
+//     assert(cube.edge_parity() == -1);
+
+//     cube.apply(random_moves);
+//     assert(cube.edge_parity() == -1);
+//     assert(cube.corner_parity() == -1);
+
+//     assert(cube.is_solvable());
+// }
+
+// void test_random_state() {
+//     auto cube = CubieCube::random_state();
+//     assert(cube.is_solvable());
+//     assert(!cube.is_solved());  // This could fail once in a while tho...
+// }
+
+// void test_inverse() {
+//     auto cube = CubieCube::random_state();
+//     cube.apply(cube.get_inverse());
+//     assert(cube.is_solved());
+
+//     auto inverse = cube;
+//     inverse.inverse();
+//     cube.apply(inverse);
+//     assert(cube.is_solved());
+// }
+
+// void test_conjugation() {
+//     auto cube = CubieCube::random_state();
+
+//     for (unsigned s = 0; s < N_SYM; ++s) {
+//         assert(cube == cube.get_conjugate(s).get_anti_conjugate(s));
+//     }
+// }
+
+int main() {
     test_move_apply();
+    test_copy_constructor();
+    // test_parity();
+    // test_random_state();
+    // test_inverse();
+    // test_conjugation();
     return 0;
 }

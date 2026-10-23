@@ -129,6 +129,24 @@ void CubieCube::show() const {
     print_array(eo);
 };
 
+bool CubieCube::is_solved() const {
+    if (!cp.is_solved()) return false;
+    if (!co.is_solved()) return false;
+    if (!ep.is_solved()) return false;
+    if (!eo.is_solved()) return false;
+    return true;
+}
+
+CubieCube CubieCube::random_state() {
+    CubieCube cube;
+    cube.cp.random_state();
+    cube.co.random_state();
+    cube.ep.random_state();
+    cube.eo.random_state();
+
+    return cube;
+}
+
 bool operator==(const CubieCube &cc1, const CubieCube &cc2) {
     if (cc1.cp != cc2.cp) return false;
     if (cc1.co != cc2.co) return false;

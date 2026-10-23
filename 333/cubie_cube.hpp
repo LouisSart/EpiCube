@@ -199,58 +199,8 @@ struct CubieCube {
     //     return true;
     // }
 
-    bool is_solved() const {
-        if (!cp.is_solved()) return false;
-        if (!co.is_solved()) return false;
-        if (!ep.is_solved()) return false;
-        if (!eo.is_solved()) return false;
-        return true;
-    }
-
-    // static CubieCube random_state() {
-    //     CubieCube cube;
-    //     std::srand(std::time(nullptr));
-
-    //     std::vector<unsigned> corners_left{ULF, URF, URB, ULB, DLF, DRF, DRB, DLB};
-    //     for (unsigned c = ULF; c < NC; ++c) {
-    //         auto random = std::rand();
-    //         auto next_idx = random % (NC - c);
-    //         cube.cp[c] = corners_left[next_idx];
-    //         corners_left.erase(corners_left.begin() + next_idx);
-    //     }
-
-    //     std::vector<Edge> edges_left{UF, UR, UB, UL, LF, RF,
-    //                                  RB, LB, DF, DR, DB, DL};
-    //     for (unsigned e = UF; e < NE; ++e) {
-    //         auto random = std::rand();
-    //         auto next_idx = random % (NE - e);
-    //         cube.ep[e] = edges_left[next_idx];
-    //         edges_left.erase(edges_left.begin() + next_idx);
-    //     }
-
-    //     int counter = 0;
-    //     for (unsigned c = ULF; c < DLB; ++c) {
-    //         cube.co[c] = std::rand() % 3;
-    //         counter += cube.co[c];
-    //     }
-    //     cube.co[DLB] = (3 - (counter % 3)) % 3;
-
-    //     counter = 0;
-    //     for (unsigned e = UF; e < DL; ++e) {
-    //         cube.eo[e] = std::rand() % 2;
-    //         counter += cube.eo[e];
-    //     }
-    //     cube.eo[DL] = (2 - (counter % 2)) % 2;
-
-    //     if (cube.corner_parity() != cube.edge_parity()) {
-    //         auto a = cube.cp[0];
-    //         auto b = cube.cp[1];
-    //         cube.cp[1] = a;
-    //         cube.cp[0] = b;
-    //     }
-
-    //     return cube;
-    // }
+    bool is_solved() const;
+    static CubieCube random_state();
 };
 
 bool operator==(const CubieCube &, const CubieCube &);
