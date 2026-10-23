@@ -102,7 +102,7 @@ void CubieCube::corner_apply(const Move& m) {
 void CubieCube::edge_apply(const Move& m) {
     ep.compose(EPs[m]);
     eo = (eo * EPs[m]) + EOs[m];
-};
+}
 
 void CubieCube::apply(const Move& m) {
     corner_apply(m);
@@ -130,15 +130,9 @@ void CubieCube::show() const {
 };
 
 bool CubieCube::is_solvable() const {
-    if (!co.is_even()) {
-        return false;
-    }
-    if (!eo.is_even()) {
-        return false;
-    }
-    if (cp.parity() != ep.parity()) {
-        return false;
-    }
+    if (!co.is_even()) return false;
+    if (!eo.is_even()) return false;
+    if (cp.parity() != ep.parity()) return false;
     return true;
 }
 
