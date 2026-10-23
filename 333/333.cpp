@@ -138,10 +138,11 @@ static constexpr Orientation<NC, 3> COs[N_HTM_MOVES] {
     ((B_co * B_cp) + B_co) * B_cp + B_co,   // B'
 };
 
-static constexpr Permutation<NE> U_ep {UR, UB, UL, UF, LF, RF, RB, LB, DF, DR, DB, DL};
 static constexpr Permutation<NE> SURF_ep {RF, UF, LF, DF, DR, UR, UL, DL, RB, UB, LB, DB};
 static constexpr Permutation<NE> y_ep {UR, UB, UL, UF, RF, RB, LB, LF, DR, DB, DL, DF};
 static constexpr Permutation<NE> z2_ep {DF, DL, DB, DR, RF, LF, LB, RB, UF, UL, UB, UR};
+static constexpr Permutation<NE> RL_mirror_ep {UF, UL, UB, UR, RF, LF, LB, RB, DF, DL, DB, DR};
+static constexpr Permutation<NE> U_ep {UR, UB, UL, UF, LF, RF, RB, LB, DF, DR, DB, DL};
 static constexpr Permutation<NE> R_ep = U_ep.get_conjugate(SURF_ep);
 static constexpr Permutation<NE> F_ep = R_ep.get_conjugate(SURF_ep);
 static constexpr Permutation<NE> D_ep = U_ep.get_conjugate(z2_ep);
@@ -192,11 +193,12 @@ CubieCube::CubieCube(const std::string &scramble) { apply(make_sequence(scramble
 void CubieCube::corner_apply(const Move& m) {
     cp.compose(CPs[m]);
     co = (co * CPs[m]) + COs[m];
-    ep.compose(EPs[m]);
-    eo = (eo * EPs[m]) + EOs[m];
 }
 
-void CubieCube::edge_apply(const Move& m) {};
+void CubieCube::edge_apply(const Move& m) {
+    ep.compose(EPs[m]);
+    eo = (eo * EPs[m]) + EOs[m];
+};
 
 void CubieCube::apply(const Move& m) {
     corner_apply(m);
