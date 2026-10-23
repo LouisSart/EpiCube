@@ -50,8 +50,5 @@ void test_move_apply() {
 int main(){
     move_test();
     test_move_apply();
-    CubieCube cc, check;
-    cc.show();
-    assert(cc == check);
     return 0;
 }

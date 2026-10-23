@@ -426,7 +426,7 @@ bool operator==(const Permutation<N> &p1, const Permutation<N> &p2) {
 }
 
 template<typename array_t, unsigned N>
-void permute(array_t &items, const Permutation<N> &perm) {
+constexpr void permute(array_t &items, const Permutation<N> &perm) {
     auto buf = items;
     for (unsigned k = 0; k < N; ++k){
         items[k] = buf[perm[k]];
@@ -534,7 +534,7 @@ struct Orientation : std::array<unsigned, N> {
 };
 
 template<unsigned N, unsigned v>
-Orientation<N, v> operator+(const Orientation<N, v> &o1, const Orientation<N, v> &o2) {
+constexpr Orientation<N, v> operator+(const Orientation<N, v> &o1, const Orientation<N, v> &o2) {
     Orientation<N, v> ret;
     for (unsigned k = 0; k < N; ++k) {
         ret[k] = (o1[k] + o2[k]) % v;
@@ -543,7 +543,7 @@ Orientation<N, v> operator+(const Orientation<N, v> &o1, const Orientation<N, v>
 }
 
 template<unsigned N, unsigned v>
-Orientation<N, v> operator*(const Orientation<N, v> &o, const Permutation<N> &p) {
+constexpr Orientation<N, v> operator*(const Orientation<N, v> &o, const Permutation<N> &p) {
     Orientation<N, v> ret = o;
     permute(ret, p);
     return ret;

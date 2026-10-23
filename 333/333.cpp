@@ -89,9 +89,9 @@ Sequence<Move> make_sequence(const std::string str_in) {
     return ret;
 };
 
-static constexpr Permutation<NC> z2_cp {DRF, DLF, DLB, DRB, URF, ULF, ULB, URB};
 static constexpr Permutation<NC> SURF_cp {DRF, URF, ULF, DLF, DRB, URB, ULB, DLB};
 static constexpr Permutation<NC> y_cp {URF, URB, ULB, ULF, DRF, DRB, DLB, DLF};
+static constexpr Permutation<NC> z2_cp {DRF, DLF, DLB, DRB, URF, ULF, ULB, URB};
 static constexpr Permutation<NC> RL_mirror_cp {URF, ULF, ULB, URB, DRF, DLF, DLB, DRB};
 
 static constexpr Permutation<NC> U_cp{URF, URB, ULB, ULF, DLF, DRF, DRB, DLB};
@@ -108,6 +108,34 @@ static constexpr Permutation<NC> CPs[N_HTM_MOVES] {
     L_cp, L_cp * L_cp, L_cp * L_cp * L_cp,
     F_cp, F_cp * F_cp, F_cp * F_cp * F_cp,
     B_cp, B_cp * B_cp, B_cp * B_cp * B_cp,
+};
+
+static constexpr Orientation<NC, 3> SURF_co {2, 1, 2, 1, 1, 2, 1, 2};
+static constexpr Orientation<NC, 3> SURF2_co = (SURF_co * SURF_cp) + SURF_co;
+static constexpr Orientation<NC, 3> R_co = (SURF2_co * U_cp * SURF_cp) + SURF_co;
+static constexpr Orientation<NC, 3> F_co = (SURF_co * U_cp * SURF_cp.get_inverse()) + SURF2_co;
+static constexpr Orientation<NC, 3> L_co = R_co * z2_cp;
+static constexpr Orientation<NC, 3> B_co = F_co * y_cp * y_cp;
+
+static constexpr Orientation<NC, 3> COs[N_HTM_MOVES] {
+    {0, 0, 0, 0, 0, 0, 0,},                  // U
+    {0, 0, 0, 0, 0, 0, 0,},                  // U2
+    {0, 0, 0, 0, 0, 0, 0,},                  // U'
+    {0, 0, 0, 0, 0, 0, 0,},                  // D
+    {0, 0, 0, 0, 0, 0, 0,},                  // D2
+    {0, 0, 0, 0, 0, 0, 0,},                  // D'
+    R_co,                                   // R
+    (R_co * R_cp) + R_co,                   // R2
+    ((R_co * R_cp) + R_co) * R_cp + R_co,   // R'
+    L_co,                                   // L
+    (L_co * L_cp) + L_co,                   // L2
+    ((L_co * L_cp) + L_co) * L_cp + L_co,   // L'
+    F_co,                                   // F
+    (F_co * F_cp) + F_co,                   // F2
+    ((F_co * F_cp) + F_co) * F_cp + F_co,   // F'
+    B_co,                                   // B
+    (B_co * B_cp) + B_co,                   // B2
+    ((B_co * B_cp) + B_co) * B_cp + B_co,   // B'
 };
 
 static constexpr Permutation<NE> U_ep {UR, UB, UL, UF, LF, RF, RB, LB, DF, DR, DB, DL};
