@@ -219,22 +219,22 @@ struct Permutation : std::array<unsigned, N> {
         }
     }
 
-    void compose(const Permutation<N> & other) {
-        auto ret = *this;
+    constexpr void compose(const Permutation<N> & other) {
+        Permutation<N> ret = *this;
         for (unsigned k = 0; k < N; ++k){
             this->operator[](k) = ret[other[k]];
         }
     }
 
-    auto get_conjugate(const Permutation<N> &p) const {
+    constexpr Permutation<N> get_conjugate(const Permutation<N> &p) const {
         // return p^-1 o (*this) o p
-        auto ret = p.get_inverse();
+        Permutation<N> ret = p.get_inverse();
         ret.compose(*this);
         ret.compose(p);
         return ret;
     }
 
-    Permutation<N> get_inverse() const {
+    constexpr Permutation<N> get_inverse() const {
         Permutation<N> ret;
         for (unsigned k = 0; k < N; ++k) {
             ret[(*this)[k]] = k;
@@ -411,7 +411,7 @@ struct Permutation : std::array<unsigned, N> {
 };
 
 template<unsigned N>
-Permutation<N> operator*(const Permutation<N> &p1, const Permutation<N> &p2) {
+constexpr Permutation<N> operator*(const Permutation<N> &p1, const Permutation<N> &p2) {
     auto ret = p1;
     ret.compose(p2);
     return ret;

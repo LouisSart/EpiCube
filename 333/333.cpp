@@ -1,3 +1,5 @@
+#include <iostream>       // std::cout << Move
+#include <sstream>        // std::isstream
 #include "move.hpp"
 #include "cubie_cube.hpp"
 
@@ -67,8 +69,46 @@ const std::vector<Move> allowed_next(const Move m) {
     }
 }
 
-Permutation<NC> U_cp{URF, URB, ULB, ULF, DLF, DRF, DRB, DLB};
-// Permutation<NC> CPs[]
+Move HTM::str_to_move(const std::string& s) {
+    static std::unordered_map<std::string, Move> str_map { 
+        {"U", U}, {"U2", U2}, {"U'", U3}, {"D", D}, {"D2", D2}, {"D'", D3},
+        {"R", R}, {"R2", R2}, {"R'", R3}, {"L", L}, {"L2", L2}, {"L'", L3},
+        {"F", F}, {"F2", F2}, {"F'", F3}, {"B", B}, {"B2", B2}, {"B'", B3}
+    };
+    assert(str_map.contains(s));
+    return str_map[s];
+}
+
+Sequence<Move> make_sequence(const std::string str_in) {
+    Sequence<Move> ret;
+    std::istringstream f(str_in);
+    std::string s;    
+    while (std::getline(f, s, ' ')) {
+        ret.push_back(HTM::str_to_move(s));
+    }
+    return ret;
+};
+
+static constexpr Permutation<NC> z2_cp{DRF, DLF, DLB, DRB, URF, ULF, ULB, URB};
+static constexpr Permutation<NC> SURF_cp{DRF, URF, ULF, DLF, DRB, URB, ULB, DLB};
+static constexpr Permutation<NC> y_cp{URF, URB, ULB, ULF, DRF, DRB, DLB, DLF};
+static constexpr Permutation<NC> RL_mirror_cp{URF, ULF, ULB, URB, DRF, DLF, DLB, DRB};
+
+static constexpr Permutation<NC> U_cp{URF, URB, ULB, ULF, DLF, DRF, DRB, DLB};
+static constexpr Permutation<NC> R_cp = U_cp.get_conjugate(SURF_cp);
+static constexpr Permutation<NC> F_cp = R_cp.get_conjugate(SURF_cp);
+static constexpr Permutation<NC> D_cp = U_cp.get_conjugate(z2_cp);
+static constexpr Permutation<NC> L_cp = D_cp.get_conjugate(SURF_cp);
+static constexpr Permutation<NC> B_cp = L_cp.get_conjugate(SURF_cp);
+
+static constexpr Permutation<NC> CPs[N_HTM_MOVES] {
+    U_cp, U_cp * U_cp, U_cp * U_cp * U_cp,
+    D_cp, D_cp * D_cp, D_cp * D_cp * D_cp,
+    R_cp, R_cp * R_cp, R_cp * R_cp * R_cp,
+    L_cp, L_cp * L_cp, L_cp * L_cp * L_cp,
+    F_cp, F_cp * F_cp, F_cp * F_cp * F_cp,
+    B_cp, B_cp * B_cp, B_cp * B_cp * B_cp,
+};
 
 void CubieCube::show() const {
     // Display the 4 arrays defining a cube at the unsigned level
