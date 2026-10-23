@@ -115,6 +115,11 @@ void CubieCube::apply(const Sequence<Move> &seq) {
     }
 };
 
+CubieCube CubieCube::get_conjugate(const CubieCube &conj) const {
+    return conj.get_inverse() * (*this) * conj;
+}
+
+
 void CubieCube::show() const {
     // Display the 4 arrays defining a cube cubie level
 
@@ -161,4 +166,14 @@ bool operator==(const CubieCube &cc1, const CubieCube &cc2) {
     if (cc1.eo != cc2.eo) return false;
     return true;
 }
+
+CubieCube operator*(const CubieCube &c1, const CubieCube &c2) {
+    CubieCube ret;
+    ret.cp = c1.cp * c2.cp;
+    ret.co = (c1.co * c2.cp) + c2.co;
+    ret.ep = c1.ep * c2.ep;
+    ret.eo = (c1.eo * c2.ep) + c2.eo;
+    return ret;
+}
+
 }; // namespace Cube 333

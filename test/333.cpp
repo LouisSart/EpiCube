@@ -84,31 +84,24 @@ void test_random_state() {
     assert(!cube.is_solved());  // This could fail once in a while tho...
 }
 
-// void test_inverse() {
-//     auto cube = CubieCube::random_state();
-//     cube.apply(cube.get_inverse());
-//     assert(cube.is_solved());
+void test_inverse() {
+    auto cube = CubieCube::random_state();
+    assert((cube * cube.get_inverse()).is_solved());
+}
 
-//     auto inverse = cube;
-//     inverse.inverse();
-//     cube.apply(inverse);
-//     assert(cube.is_solved());
-// }
+void test_conjugation() {
+    auto cube = CubieCube::random_state();
+    auto conj = CubieCube::random_state();
 
-// void test_conjugation() {
-//     auto cube = CubieCube::random_state();
-
-//     for (unsigned s = 0; s < N_SYM; ++s) {
-//         assert(cube == cube.get_conjugate(s).get_anti_conjugate(s));
-//     }
-// }
+    assert(cube == cube.get_conjugate(conj).get_conjugate(conj.get_inverse()));
+}
 
 int main() {
     test_move_apply();
     test_copy_constructor();
     test_parity();
     test_random_state();
-    // test_inverse();
-    // test_conjugation();
+    test_inverse();
+    test_conjugation();
     return 0;
 }

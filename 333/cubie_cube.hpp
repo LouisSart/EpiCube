@@ -45,7 +45,7 @@ struct CubieCube {
 
     // void sym_apply(const Skeleton &, const unsigned &);
 
-    // CubieCube get_conjugate(const unsigned &sym_index) const;
+    CubieCube get_conjugate(const CubieCube&) const;
 
     // CubieCube get_anti_conjugate(const unsigned &sym_index) const;
 
@@ -67,21 +67,19 @@ struct CubieCube {
     //     }
     // }
 
-    // CubieCube get_inverse() const {
-    //     // return the inverse permutation
-    //     CubieCube inverse;
-    //     for (unsigned c = ULF; c < NC; ++c) {
-    //         inverse.cp[cp[c]] = (unsigned)c;
-    //         inverse.co[cp[c]] = (3 - co[c]) % 3;
-    //     };
-    //     for (unsigned e = UF; e < NE; ++e) {
-    //         inverse.ep[ep[e]] = (Edge)e;
-    //         inverse.eo[ep[e]] = (2 - eo[e]) % 2;
-    //     };
-    //     return inverse;
-    // }
-
-    // void inverse() { *this = get_inverse(); }
+    CubieCube get_inverse() const {
+        // return the inverse permutation
+        CubieCube inverse;
+        for (unsigned c = ULF; c < NC; ++c) {
+            inverse.cp[cp[c]] = (unsigned)c;
+            inverse.co[cp[c]] = (3 - co[c]) % 3;
+        };
+        for (unsigned e = UF; e < NE; ++e) {
+            inverse.ep[ep[e]] = (unsigned)e;
+            inverse.eo[ep[e]] = (2 - eo[e]) % 2;
+        };
+        return inverse;
+    }
 
     // bool operator==(const CubieCube &other) {
     //     for (unsigned c = ULF; c < NC; ++c) {
@@ -103,7 +101,7 @@ struct CubieCube {
     //     return true;
     // }
 
-    // bool operator!=(const CubieCube &other) { return !(*this == other); }
+    // bool operator!=(const CubieCube &other) {return !(*this == other);}
 
     // CubieCube &operator=(const CubieCube &other) {
     //     if (this == &other)  // self assignment guard
@@ -192,6 +190,7 @@ struct CubieCube {
 };
 
 bool operator==(const CubieCube &, const CubieCube &);
+CubieCube operator*(const CubieCube &, const CubieCube &);
 
 // CubieCube rotation_cc[N_ELEM_SYM - 1]{
 //     /* S_URF */
