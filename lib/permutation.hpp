@@ -163,18 +163,18 @@ struct Layout : std::array<unsigned, N> {
 template<unsigned N>
 struct Permutation : std::array<unsigned, N> {
 
-    Permutation() { // Constructeur sans arguments
+    constexpr Permutation() { // Constructeur sans arguments
         for (unsigned k = 0; k < N; ++k){
             this->operator[](k) = k;
         }
     }
 
-    Permutation(const unsigned &c) { // Constructeur from index
+    constexpr Permutation(const unsigned &c) { // Constructeur from index
         this->set_from_index(c);
     }
 
     template<typename... Args>
-    Permutation(Args... args) : std::array<unsigned, N>{{ static_cast<unsigned>(args)... }} {} // Constructeur par brace-enclosed
+    constexpr Permutation(Args... args) : std::array<unsigned, N>{{ static_cast<unsigned>(args)... }} {} // Constructeur par brace-enclosed
 
     void random_state(const bool even = false) {
         random_shuffle(*this);
@@ -437,11 +437,11 @@ template<unsigned N, unsigned v = 2>
 struct Orientation : std::array<unsigned, N> {
     // array that stores the orientations of N pieces modulo v
 
-    Orientation() { // Constructeur sans arguments
+    constexpr Orientation() { // Constructeur sans arguments
         std::array<unsigned, N>::fill(0);
     }
     template<typename... Args>
-    Orientation(Args... args) : std::array<unsigned, N>{{ static_cast<unsigned>(args)... }} {} // Constructeur par brace-enclosed
+    constexpr Orientation(Args... args) : std::array<unsigned, N>{{ static_cast<unsigned>(args)... }} {} // Constructeur par brace-enclosed
 
     static constexpr unsigned CARD = ipow(v, N);
     static constexpr unsigned cardinality() { // CHECKME : unnecessary ?
@@ -569,13 +569,13 @@ struct Center : std::array<unsigned, N> {
     // solved state is {0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3}
 
     static constexpr unsigned NP = N / M; // number of equivalent pieces on each face
-    Center() {
+    constexpr Center() {
         static_assert(M < N);
         static_assert(N % M == 0);
         reset();
     }
     template<typename... Args>
-    Center(Args... args) : std::array<unsigned, N>{{ static_cast<unsigned>(args)... }} { // Constructeur par brace-enclosed
+    constexpr Center(Args... args) : std::array<unsigned, N>{{ static_cast<unsigned>(args)... }} { // Constructeur par brace-enclosed
         static_assert(M < N);
         static_assert(N % M == 0);
     }
