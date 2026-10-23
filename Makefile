@@ -8,9 +8,8 @@ OPT = -O1
 OBJ_DIR = obj
 
 LIB := $(wildcard $(LIB_DIR)/*.hpp) # Tous les fichiers headers de lib
-222SRC := $(wildcard 222/*.cpp) # Tous les fichiers sources pour le 2x2x2
-# HDR := $(wildcard $(SRC_DIR)/*.hpp) # Tous les headers sauf main et test
-# OBJ := $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o) # Tous les fichiers objets
+222SRC = 222/222.cpp # Le fichier source pour le 2x2x2
+333SRC = 333/333.cpp # Le fichier source pour le 3x3x3
 
 permutation: obj $(LIB)
 	$(CXX) $(STD) $(OPT) $(INC) $(TEST_DIR)/permutation_test.cpp -o $(OBJ_DIR)/permutation
@@ -22,6 +21,13 @@ permutation: obj $(LIB)
 $(OBJ_DIR)/222.o: $(LIB) $(222SRC)
 	$(CXX) $(STD) $(OPT) $(INC) -c $(222SRC) -o $(OBJ_DIR)/222.o
 
+333: $(TEST_DIR)/333.cpp $(OBJ_DIR)/333.o
+	$(CXX) $(STD) $(OPT) $(INC) -c $(TEST_DIR)/333.cpp -o $(OBJ_DIR)/333_test.o
+	$(CXX) $(STD) $(OPT) $(INC) $(OBJ_DIR)/333.o  $(OBJ_DIR)/333_test.o -o $(OBJ_DIR)/333_test
+
+$(OBJ_DIR)/333.o: $(LIB) $(333SRC)
+	$(CXX) $(STD) $(OPT) $(INC) -c $(333SRC) -o $(OBJ_DIR)/333.o
+
 .PHONY: all clean
 
 # Ojects directory
@@ -30,4 +36,4 @@ obj:
 
 # Règle de nettoyage
 clean:
-	rm -f $(OBJ_DIR)/*.o $(OBJ_DIR)/test
+	rm -f $(OBJ_DIR)/*.o $(OBJ_DIR)/test 
