@@ -8,10 +8,10 @@
 
 // #include "algorithm.hpp"   // scramble
 // #include "coordinate.hpp"  // ipow
-#include "cubie.hpp"
 #include "../lib/utils.hpp"
 #include "../lib/permutation.hpp"
-// #include "move.hpp"      // moves and rotations
+#include "cubie.hpp"
+#include "move.hpp"      // moves and rotations
 // #include "symmetry.hpp"  // symmetry components
 // #include "utils.hpp"     // print_array
 
@@ -22,52 +22,20 @@ struct CubieCube {
     Permutation<NE> ep;
     Orientation<NE, 2> eo;
 
-    CubieCube(){};
-    // CubieCube(std::array<unsigned, NC> cp_in, std::array<unsigned, NC> co_in,
-    //           std::array<unsigned, NE> ep_in, std::array<unsigned, NE> eo_in)
-    //     : cp{cp_in}, co{co_in}, ep{ep_in}, eo{eo_in} {}
-    // CubieCube(const Algorithm &scramble) { apply(scramble); }
-
+    CubieCube();
+    CubieCube(const Sequence<Move> &);
+    CubieCube(const std::string &);
+    
+    void corner_apply(const Move&);
+    void edge_apply(const Move&);
+    void apply(const Move&);
     void show() const;
-
-    // void corner_apply(const CubieCube &cc) {
-    //     // Apply the corner transformation of the given CubieCube
-
-    //     std::array<unsigned, NC> new_cp;
-    //     std::array<unsigned, NC> new_co;
-    //     for (unsigned c = ULF; c < NC; c++) {
-    //         new_cp[c] = cp[cc.cp[c]];
-    //         new_co[c] = (co[cc.cp[c]] + cc.co[c]) % 3;
-    //     };
-    //     cp = new_cp;
-    //     co = new_co;
-    // };
-
-    // void edge_apply(const CubieCube &cc) {
-    //     // Apply the corner transformation of the given CubieCube
-
-    //     std::array<unsigned, NE> new_ep;
-    //     std::array<unsigned, NE> new_eo;
-    //     for (unsigned e = UF; e < NE; e++) {
-    //         new_ep[e] = ep[cc.ep[e]];
-    //         new_eo[e] = (eo[cc.ep[e]] + cc.eo[e]) % 2;
-    //     };
-    //     ep = new_ep;
-    //     eo = new_eo;
-    // };
-
-    // void apply(const CubieCube &cc) {
-    //     // Apply a transformation
-
-    //     edge_apply(cc);
-    //     corner_apply(cc);
-    // }
 
     // void apply(const CubieCube &&cc) { apply(cc); }
 
     // void apply(const Move &);
 
-    // void apply(const Algorithm &);
+    void apply(const Sequence<Move> &);
 
     // void apply(const Skeleton &);
 
@@ -231,19 +199,13 @@ struct CubieCube {
     //     return true;
     // }
 
-    // bool is_solved() const {
-    //     for (unsigned c = ULF; c < NC; ++c) {
-    //         if (cp[c] != c || co[c] != 0) {
-    //             return false;
-    //         }
-    //     }
-    //     for (unsigned e = UF; e < NE; ++e) {
-    //         if (ep[e] != e || eo[e] != 0) {
-    //             return false;
-    //         }
-    //     }
-    //     return true;
-    // }
+    bool is_solved() const {
+        if (!cp.is_solved()) return false;
+        if (!co.is_solved()) return false;
+        if (!ep.is_solved()) return false;
+        if (!eo.is_solved()) return false;
+        return true;
+    }
 
     // static CubieCube random_state() {
     //     CubieCube cube;

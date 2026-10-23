@@ -89,10 +89,10 @@ Sequence<Move> make_sequence(const std::string str_in) {
     return ret;
 };
 
-static constexpr Permutation<NC> z2_cp{DRF, DLF, DLB, DRB, URF, ULF, ULB, URB};
-static constexpr Permutation<NC> SURF_cp{DRF, URF, ULF, DLF, DRB, URB, ULB, DLB};
-static constexpr Permutation<NC> y_cp{URF, URB, ULB, ULF, DRF, DRB, DLB, DLF};
-static constexpr Permutation<NC> RL_mirror_cp{URF, ULF, ULB, URB, DRF, DLF, DLB, DRB};
+static constexpr Permutation<NC> z2_cp {DRF, DLF, DLB, DRB, URF, ULF, ULB, URB};
+static constexpr Permutation<NC> SURF_cp {DRF, URF, ULF, DLF, DRB, URB, ULB, DLB};
+static constexpr Permutation<NC> y_cp {URF, URB, ULB, ULF, DRF, DRB, DLB, DLF};
+static constexpr Permutation<NC> RL_mirror_cp {URF, ULF, ULB, URB, DRF, DLF, DLB, DRB};
 
 static constexpr Permutation<NC> U_cp{URF, URB, ULB, ULF, DLF, DRF, DRB, DLB};
 static constexpr Permutation<NC> R_cp = U_cp.get_conjugate(SURF_cp);
@@ -110,8 +110,49 @@ static constexpr Permutation<NC> CPs[N_HTM_MOVES] {
     B_cp, B_cp * B_cp, B_cp * B_cp * B_cp,
 };
 
+static constexpr Permutation<NE> U_ep {UR, UB, UL, UF, LF, RF, RB, LB, DF, DR, DB, DL};
+static constexpr Permutation<NE> SURF_ep {RF, UF, LF, DF, DR, UR, UL, DL, RB, UB, LB, DB};
+static constexpr Permutation<NE> y_ep {UR, UB, UL, UF, RF, RB, LB, LF, DR, DB, DL, DF};
+static constexpr Permutation<NE> z2_ep {DF, DL, DB, DR, RF, LF, LB, RB, UF, UL, UB, UR};
+static constexpr Permutation<NE> R_ep = U_ep.get_conjugate(SURF_ep);
+static constexpr Permutation<NE> F_ep = R_ep.get_conjugate(SURF_ep);
+static constexpr Permutation<NE> D_ep = U_ep.get_conjugate(z2_ep);
+static constexpr Permutation<NE> L_ep = D_ep.get_conjugate(SURF_ep);
+static constexpr Permutation<NE> B_ep = L_ep.get_conjugate(SURF_ep);
+
+static constexpr Permutation<NE> EPs[N_HTM_MOVES] {
+    U_ep, U_ep * U_ep, U_ep * U_ep * U_ep,
+    D_ep, D_ep * D_ep, D_ep * D_ep * D_ep,
+    R_ep, R_ep * R_ep, R_ep * R_ep * R_ep,
+    L_ep, L_ep * L_ep, L_ep * L_ep * L_ep,
+    F_ep, F_ep * F_ep, F_ep * F_ep * F_ep,
+    B_ep, B_ep * B_ep, B_ep * B_ep * B_ep,
+};
+
+CubieCube::CubieCube(){};
+CubieCube::CubieCube(const Sequence<Move> &scramble) { apply(scramble); }
+CubieCube::CubieCube(const std::string &scramble) { apply(make_sequence(scramble)); }
+
+void CubieCube::corner_apply(const Move& m) {
+    cp.compose(CPs[m]);
+    ep.compose(EPs[m]);
+}
+
+void CubieCube::edge_apply(const Move& m) {};
+
+void CubieCube::apply(const Move& m) {
+    corner_apply(m);
+    edge_apply(m);
+}
+
+void CubieCube::apply(const Sequence<Move> &seq) {
+    for (Move m : seq) {
+        apply(m);
+    }
+};
+
 void CubieCube::show() const {
-    // Display the 4 arrays defining a cube at the unsigned level
+    // Display the 4 arrays defining a cube cubie level
 
     std::cout << "CubieCube object:" << '\n';
     std::cout << "  CP: ";
