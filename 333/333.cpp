@@ -118,12 +118,12 @@ static constexpr Orientation<NC, 3> L_co = R_co * z2_cp;
 static constexpr Orientation<NC, 3> B_co = F_co * y_cp * y_cp;
 
 static constexpr Orientation<NC, 3> COs[N_HTM_MOVES] {
-    {0, 0, 0, 0, 0, 0, 0,},                  // U
-    {0, 0, 0, 0, 0, 0, 0,},                  // U2
-    {0, 0, 0, 0, 0, 0, 0,},                  // U'
-    {0, 0, 0, 0, 0, 0, 0,},                  // D
-    {0, 0, 0, 0, 0, 0, 0,},                  // D2
-    {0, 0, 0, 0, 0, 0, 0,},                  // D'
+    {0, 0, 0, 0, 0, 0, 0, 0},               // U
+    {0, 0, 0, 0, 0, 0, 0, 0},               // U2
+    {0, 0, 0, 0, 0, 0, 0, 0},               // U'
+    {0, 0, 0, 0, 0, 0, 0, 0},               // D
+    {0, 0, 0, 0, 0, 0, 0, 0},               // D2
+    {0, 0, 0, 0, 0, 0, 0, 0},               // D'
     R_co,                                   // R
     (R_co * R_cp) + R_co,                   // R2
     ((R_co * R_cp) + R_co) * R_cp + R_co,   // R'
@@ -157,13 +157,43 @@ static constexpr Permutation<NE> EPs[N_HTM_MOVES] {
     B_ep, B_ep * B_ep, B_ep * B_ep * B_ep,
 };
 
+static constexpr Orientation<NE> SURF_eo {0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1};
+static constexpr Orientation<NE> SURF2_eo = (SURF_eo * SURF_ep) + SURF_eo;
+static constexpr Orientation<NE> R_eo = (SURF2_eo * U_ep * SURF_ep) + SURF_eo;
+static constexpr Orientation<NE> F_eo = (SURF_eo * U_ep * SURF_ep.get_inverse()) + SURF2_eo;
+static constexpr Orientation<NE> L_eo = R_eo * z2_ep;
+static constexpr Orientation<NE> B_eo = F_eo * y_ep * y_ep;
+
+static constexpr Orientation<NE> EOs[N_HTM_MOVES] {
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},   // U
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},   // U2
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},   // U'
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},   // D
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},   // D2
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},   // D'
+    R_eo,                                   // R
+    (R_eo * R_ep) + R_eo,                   // R2
+    ((R_eo * R_ep) + R_eo) * R_ep + R_eo,   // R'
+    L_eo,                                   // L
+    (L_eo * L_ep) + L_eo,                   // L2
+    ((L_eo * L_ep) + L_eo) * L_ep + L_eo,   // L'
+    F_eo,                                   // F
+    (F_eo * F_ep) + F_eo,                   // F2
+    ((F_eo * F_ep) + F_eo) * F_ep + F_eo,   // F'
+    B_eo,                                   // B
+    (B_eo * B_ep) + B_eo,                   // B2
+    ((B_eo * B_ep) + B_eo) * B_ep + B_eo,   // B'
+};
+
 CubieCube::CubieCube(){};
 CubieCube::CubieCube(const Sequence<Move> &scramble) { apply(scramble); }
 CubieCube::CubieCube(const std::string &scramble) { apply(make_sequence(scramble)); }
 
 void CubieCube::corner_apply(const Move& m) {
     cp.compose(CPs[m]);
+    co = (co * CPs[m]) + COs[m];
     ep.compose(EPs[m]);
+    eo = (eo * EPs[m]) + EOs[m];
 }
 
 void CubieCube::edge_apply(const Move& m) {};
