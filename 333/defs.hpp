@@ -1,6 +1,6 @@
 #include "../lib/permutation.hpp"
 
-// This is the file for defining elementary changes in permutation and
+// This is the file for defining changes in permutation and
 // orientations for corners and edges when applying
 // elementary moves and rotations
 
@@ -107,4 +107,30 @@ static constexpr Orientation<NE> EOs[N_HTM_MOVES] {
     (B_eo * B_ep) + B_eo,                   // B2
     ((B_eo * B_ep) + B_eo) * B_ep + B_eo,   // B'
 };
+
+// Let c be a given permutation of the cube
+// Given a symmetry S, let conj be the function:
+
+// conj(c, S) = S^-1 * c * S
+
+// If we were to work on a coordinate level and we wanted
+// to compute the coordinate for:
+
+// conj(c, S) * m, where m is a legal move
+
+// we would face an issue because the move table
+// can only transform the coordinate that represents c
+// but not its conjugation. However:
+// conj(c, S) * m = S^-1 * c * S * m
+//                = S^-1 * c * S * S^-1 * S * m * S^-1 * S
+//                = S^-1 * (c * S * m * S^-1) * S
+//                = conj(c * conj(m, S^-1), S)
+// So we only need to store the conjugations for elementary moves
+// This file is where the translation of moves after conjugation
+// by a symmetry is computed
+
+constexpr Permutation<N_HTM_MOVES> S_URF_move_conj {R, R2, R3, L, L2, L3, F, F2, F3, B, B2, B3, U, U2, U3, D, D2, D3};
+constexpr Permutation<N_HTM_MOVES> y_move_conj {U, U2, U3, D, D2, D3, F, F2, F3, B, B2, B3, L, L2, L3, R, R2, R3};
+constexpr Permutation<N_HTM_MOVES> z2_move_conj {D, D2, D3, U, U2, U3, L, L2, L3, R, R2, R3, F, F2, F3, B, B2, B3};
+constexpr Permutation<N_HTM_MOVES> LR_mirror_move_conj{U3, U2, U, D3, D2, D, L3, L2, L, R3, R2, R, F3, F2, F, B3, B2, B};
 };

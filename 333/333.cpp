@@ -189,4 +189,196 @@ CubieCube operator*(const CubieCube &c1, const CubieCube &c2) {
     return ret;
 }
 
+// SYMMETRY INDEX
+constexpr unsigned N_SURF = 3;
+constexpr unsigned N_Y = 4;
+constexpr unsigned N_Z2 = 2;
+constexpr unsigned N_LR = 2;
+constexpr unsigned N_SYM = 48;
+constexpr unsigned N_ELEM_SYM = 4;
+
+unsigned symmetry_index(const unsigned c_surf, const unsigned c_y,
+                        const unsigned c_z2, const unsigned c_lr) {
+    // Assign a unique index to each combination of symmetries
+
+    assert(c_surf < N_SURF);
+    assert(c_y < N_Y);
+    assert(c_z2 < N_Z2);
+    assert(c_lr < N_LR);
+
+    unsigned coord = c_lr + N_LR * (c_z2 + N_Z2 * (c_y + N_Y * (c_surf)));
+
+    assert(coord < N_SYM);
+    return coord;
+}
+
+constexpr auto symmetry_index_to_num(const unsigned index) {
+    // Retrieve the symmetry components from the given index
+
+    assert(index < N_SYM);
+
+    unsigned div = index;
+    unsigned c_lr = div % N_LR;
+    div = div / N_LR;
+    unsigned c_z2 = div % N_Z2;
+    div = div / N_Z2;
+    unsigned c_y = div % N_Y;
+    div = div / N_Y;
+    unsigned c_surf = div;
+
+    assert(c_surf < N_SURF);
+    assert(c_y < N_Y);
+    assert(c_z2 < N_Z2);
+    assert(c_lr < N_LR);
+
+    return std::make_tuple(c_surf, c_y, c_z2, c_lr);
+}
+
+// constexpr void permute_moves(Move *mp1, const Move *mp2) {
+//     // Perform mp2 o mp1
+
+//     Move new_mp[N_HTM_MOVES];
+//     for (Move m : HTM::moves) {
+//         new_mp[m] = mp2[mp1[m]];
+//     };
+
+//     for (Move m : HTM::moves) {
+//         mp1[m] = new_mp[m];
+//     }
+// }
+
+constexpr auto get_move_permutation(const unsigned &sym_index) {
+    Permutation<N_HTM_MOVES> ret {U, U2, U3, D, D2, D3, R, R2, R3,
+                                         L, L2, L3, F, F2, F3, B, B2, B3};
+    auto [c_surf, c_y, c_z2, c_lr] = symmetry_index_to_num(sym_index);
+
+    for (unsigned k_lr = 0; k_lr < c_lr; ++k_lr) {
+        ret = ret * LR_mirror_move_conj;
+    }
+    for (unsigned k_z2 = 0; k_z2 < c_z2; ++k_z2) {
+        ret = ret * z2_move_conj;
+    }
+    for (unsigned k_y = 0; k_y < c_y; ++k_y) {
+        ret = ret * y_move_conj;
+    }
+    for (unsigned k_surf = 0; k_surf < c_surf; ++k_surf) {
+        ret = ret * S_URF_move_conj;
+    }
+
+    return ret;
+}
+
+constexpr auto move_conj_table = [] {
+    std::array<Move, N_SYM * N_HTM_MOVES> ret;
+    for (unsigned s = 0; s < N_SYM; ++s) {
+        for (Move m : HTM::moves) {
+            auto move_perm = get_move_permutation(s);
+            ret[s * N_HTM_MOVES + m] = (Move)move_perm[m];
+        }
+    }
+    return ret;
+}();
+
+constexpr auto move_anti_conj_table = [] {
+    std::array<Move, N_SYM * N_HTM_MOVES> ret;
+    for (unsigned s = 0; s < N_SYM; ++s) {
+        for (Move m : HTM::moves) {
+            auto move_perm = get_move_permutation(s);
+            ret[s * N_HTM_MOVES + (Move)move_perm[m]] = m;
+        }
+    }
+    return ret;
+}();
+
+Move move_conj(const Move &m, const unsigned &s) {
+    return move_conj_table[s * N_HTM_MOVES + m];
+}
+
+Move move_anti_conj(const Move &m, const unsigned &s) {
+    return move_anti_conj_table[s * N_HTM_MOVES + m];
+}
+
+Sequence<Move> symmetrize(const Sequence<Move> &alg, const unsigned &sym_index) {
+    // Return the algorithm that is the conjugation of alg by the symmetry
+    // with index sym_index
+
+    Sequence<Move> ret;
+    for (const Move &m : alg) {
+        ret.push_back(move_conj(m, sym_index));
+    }
+    return ret;
+}
+
+Sequence<Move> anti_symmetrize(const Sequence<Move> &alg, const unsigned &sym_index) {
+    // Return the algorithm that is the anti-conjugation of
+    // alg by the symmetry with index sym_index
+
+    Sequence<Move> ret;
+    for (const Move &m : alg) {
+        ret.push_back(move_anti_conj(m, sym_index));
+    }
+    return ret;
+}
+
+// SYMMETRY COMBINATION
+// [U, D, R, L, F, B]
+// [0, 1, 2, 3, 4, 5]
+static Permutation<6> ccurf{4, 5, 0, 1, 2, 3};
+static Permutation<6> ccy{0, 1, 5, 4, 2, 3};
+static Permutation<6> ccz2{1, 0, 3, 2, 4, 5};
+static Permutation<6> ccrl{0, 1, 3, 2, 4, 5};
+
+void apply_sym(std::string &cc, const unsigned &sym) {
+
+    auto [curf, cy, cz2, crl] = symmetry_index_to_num(sym);
+
+    for (unsigned krl = 0; krl < crl; ++krl) {
+        permute(cc, ccrl);
+    }
+    for (unsigned kz2 = 0; kz2 < cz2; ++kz2) {
+        permute(cc, ccz2);
+    }
+    for (unsigned ky = 0; ky < cy; ++ky) {
+        permute(cc, ccy);
+    }
+    for (unsigned kurf = 0; kurf < curf; ++kurf) {
+        permute(cc, ccurf);
+    }
+}
+
+auto make_sym_comb_table() {
+    std::string cc;
+    std::unordered_map<std::string, unsigned> perm_to_sym;
+
+    for (unsigned s = 0; s < N_SYM; ++s) {
+        cc = "UDRLFB";
+        apply_sym(cc, s);
+        perm_to_sym.insert({cc, s});
+    }
+
+    std::array<unsigned, N_SYM * N_SYM> ret;
+    for (unsigned s1 = 0; s1 < N_SYM; ++s1) {
+        for (unsigned s2 = 0; s2 < N_SYM; ++s2) {
+            cc = "UDRLFB";
+            apply_sym(cc, s1);
+            apply_sym(cc, s2);
+            unsigned s = perm_to_sym[cc];
+
+            for (Move m : HTM::moves) {
+                assert(move_conj(move_conj(m, s1), s2) == move_conj(m, s));
+            }
+
+            ret[s1 * N_SYM + s2] = s;
+        }
+    }
+    return ret;
+}
+
+unsigned sym_combine(const unsigned &s1, const unsigned &s2) {
+    // return the coordinate of the symmetry s = s1 o s2
+    static const std::array<unsigned, N_SYM * N_SYM> sym_comb_table = make_sym_comb_table();
+
+    return sym_comb_table[s1 * N_SYM + s2];
+}
+
 }; // namespace Cube 333

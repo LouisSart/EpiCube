@@ -1,6 +1,7 @@
-#include "../333/cubie_cube.hpp"
 #include "../lib/move.hpp"
+#include "../333/cubie_cube.hpp"
 #include "../333/move.hpp"
+#include "../333/symmetry.hpp"
 
 using namespace Cube333;
 auto no_effect = make_sequence("R U R' F' U2 L' U' L F U2");
@@ -95,6 +96,7 @@ void test_conjugation() {
 
     assert(cube == cube.get_conjugate(conj).get_conjugate(conj.get_inverse()));
 }
+
 
 int main() {
     test_move_apply();
