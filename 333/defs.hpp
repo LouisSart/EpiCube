@@ -1,3 +1,4 @@
+#pragma once
 #include "../lib/permutation.hpp"
 
 // This is the file for defining changes in permutation and

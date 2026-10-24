@@ -3,6 +3,7 @@
 #include "move.hpp"
 #include "cubie_cube.hpp"
 #include "defs.hpp"
+#include "symmetry.hpp"
 
 namespace Cube333 {
 
@@ -190,13 +191,6 @@ CubieCube operator*(const CubieCube &c1, const CubieCube &c2) {
 }
 
 // SYMMETRY INDEX
-constexpr unsigned N_SURF = 3;
-constexpr unsigned N_Y = 4;
-constexpr unsigned N_Z2 = 2;
-constexpr unsigned N_LR = 2;
-constexpr unsigned N_SYM = 48;
-constexpr unsigned N_ELEM_SYM = 4;
-
 unsigned symmetry_index(const unsigned c_surf, const unsigned c_y,
                         const unsigned c_z2, const unsigned c_lr) {
     // Assign a unique index to each combination of symmetries
@@ -212,7 +206,7 @@ unsigned symmetry_index(const unsigned c_surf, const unsigned c_y,
     return coord;
 }
 
-constexpr auto symmetry_index_to_num(const unsigned index) {
+std::tuple<unsigned, unsigned, unsigned, unsigned> symmetry_index_to_num(const unsigned index) {
     // Retrieve the symmetry components from the given index
 
     assert(index < N_SYM);
@@ -234,20 +228,7 @@ constexpr auto symmetry_index_to_num(const unsigned index) {
     return std::make_tuple(c_surf, c_y, c_z2, c_lr);
 }
 
-// constexpr void permute_moves(Move *mp1, const Move *mp2) {
-//     // Perform mp2 o mp1
-
-//     Move new_mp[N_HTM_MOVES];
-//     for (Move m : HTM::moves) {
-//         new_mp[m] = mp2[mp1[m]];
-//     };
-
-//     for (Move m : HTM::moves) {
-//         mp1[m] = new_mp[m];
-//     }
-// }
-
-constexpr auto get_move_permutation(const unsigned &sym_index) {
+auto get_move_permutation(const unsigned &sym_index) {
     Permutation<N_HTM_MOVES> ret {U, U2, U3, D, D2, D3, R, R2, R3,
                                          L, L2, L3, F, F2, F3, B, B2, B3};
     auto [c_surf, c_y, c_z2, c_lr] = symmetry_index_to_num(sym_index);
@@ -268,33 +249,31 @@ constexpr auto get_move_permutation(const unsigned &sym_index) {
     return ret;
 }
 
-constexpr auto move_conj_table = [] {
-    std::array<Move, N_SYM * N_HTM_MOVES> ret;
-    for (unsigned s = 0; s < N_SYM; ++s) {
-        for (Move m : HTM::moves) {
-            auto move_perm = get_move_permutation(s);
-            ret[s * N_HTM_MOVES + m] = (Move)move_perm[m];
-        }
-    }
-    return ret;
-}();
-
-constexpr auto move_anti_conj_table = [] {
-    std::array<Move, N_SYM * N_HTM_MOVES> ret;
-    for (unsigned s = 0; s < N_SYM; ++s) {
-        for (Move m : HTM::moves) {
-            auto move_perm = get_move_permutation(s);
-            ret[s * N_HTM_MOVES + (Move)move_perm[m]] = m;
-        }
-    }
-    return ret;
-}();
-
 Move move_conj(const Move &m, const unsigned &s) {
+    static auto move_conj_table = [] {
+        std::array<Move, N_SYM * N_HTM_MOVES> ret;
+        for (unsigned s = 0; s < N_SYM; ++s) {
+            for (Move m : HTM::moves) {
+                auto move_perm = get_move_permutation(s);
+                ret[s * N_HTM_MOVES + m] = (Move)move_perm[m];
+            }
+        }
+        return ret;
+    }();
     return move_conj_table[s * N_HTM_MOVES + m];
 }
 
 Move move_anti_conj(const Move &m, const unsigned &s) {
+    static auto move_anti_conj_table = [] {
+        std::array<Move, N_SYM * N_HTM_MOVES> ret;
+        for (unsigned s = 0; s < N_SYM; ++s) {
+            for (Move m : HTM::moves) {
+                auto move_perm = get_move_permutation(s);
+                ret[s * N_HTM_MOVES + (Move)move_perm[m]] = m;
+            }
+        }
+        return ret;
+    }();
     return move_anti_conj_table[s * N_HTM_MOVES + m];
 }
 
