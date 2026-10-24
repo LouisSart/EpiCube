@@ -119,6 +119,19 @@ CubieCube CubieCube::get_conjugate(const CubieCube &conj) const {
     return conj.get_inverse() * (*this) * conj;
 }
 
+CubieCube CubieCube::get_inverse() const {
+    // return the inverse permutation
+    CubieCube inverse;
+    for (unsigned c = ULF; c < NC; ++c) {
+        inverse.cp[cp[c]] = (unsigned)c;
+        inverse.co[cp[c]] = (3 - co[c]) % 3;
+    };
+    for (unsigned e = UF; e < NE; ++e) {
+        inverse.ep[ep[e]] = (unsigned)e;
+        inverse.eo[ep[e]] = (2 - eo[e]) % 2;
+    };
+    return inverse;
+}
 
 void CubieCube::show() const {
     // Display the 4 arrays defining a cube cubie level
