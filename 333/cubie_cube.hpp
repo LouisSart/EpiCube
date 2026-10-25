@@ -12,6 +12,9 @@ struct CubieCube {
     Orientation<NE, 2> eo;
 
     CubieCube();
+    CubieCube(
+        const Permutation<NC> &, const Orientation<NC, 3> &,
+        const Permutation<NE> &, const Orientation<NE, 2> &);
     CubieCube(const Sequence<Move> &);
     CubieCube(const std::string &);
     
@@ -21,6 +24,7 @@ struct CubieCube {
     void show() const;
     void apply(const Sequence<Move> &);
     CubieCube get_conjugate(const CubieCube&) const;
+    CubieCube get_conjugate(const unsigned&) const;
     CubieCube get_inverse() const;
     bool is_solvable() const;
     bool is_solved() const;
@@ -29,5 +33,5 @@ struct CubieCube {
 
 bool operator==(const CubieCube &, const CubieCube &);
 CubieCube operator*(const CubieCube &, const CubieCube &);
-
+CubieCube operator^(const CubieCube &, const CubieCube &);
 }; // namespace Cube333

@@ -92,6 +92,10 @@ Sequence<Move> make_sequence(const std::string str_in) {
 };
 
 CubieCube::CubieCube(){};
+CubieCube::CubieCube(
+    const Permutation<NC> &cp_in, const Orientation<NC, 3> &co_in,
+    const Permutation<NE> &ep_in, const Orientation<NE, 2> &eo_in) :
+    cp{cp_in}, co{co_in}, ep{ep_in}, eo{eo_in}{}
 CubieCube::CubieCube(const Sequence<Move> &scramble) { apply(scramble); }
 CubieCube::CubieCube(const std::string &scramble) { apply(make_sequence(scramble)); }
 
@@ -187,6 +191,15 @@ CubieCube operator*(const CubieCube &c1, const CubieCube &c2) {
     ret.co = (c1.co * c2.cp) + c2.co;
     ret.ep = c1.ep * c2.ep;
     ret.eo = (c1.eo * c2.ep) + c2.eo;
+    return ret;
+}
+
+CubieCube operator^(const CubieCube &c1, const unsigned n) {
+    assert(n > 0);
+    CubieCube ret;
+    for (unsigned k = 0; k < n - 1; ++k) {
+        ret = ret * ret;
+    }
     return ret;
 }
 
@@ -360,4 +373,25 @@ unsigned sym_combine(const unsigned &s1, const unsigned &s2) {
     return sym_comb_table[s1 * N_SYM + s2];
 }
 
+std::array<CubieCube, N_SYM> make_cubie_cube_sym_table() {
+    // Build the table of CubieCubes that represent each of the
+    // 48 symmetries of the 3x3x3
+
+    static CubieCube surf_cc{SURF_cp, SURF_co, SURF_ep, SURF_eo};
+    static CubieCube y_cc{y_cp, y_co, y_ep, y_eo};
+    static CubieCube z2_cc{z2_cp, z2_co, z2_ep, z2_eo};
+    static CubieCube rl_cc{rl_cp, rl_co, rl_ep, rl_eo};
+
+    std::array<CubieCube, N_SYM> table;
+    for (unsigned c = 0; c < N_SYM; ++c) {
+        auto [curf, cy, cz2, crl] = symmetry_index_to_num(c);
+        CubieCube sym_cc;
+        sym_cc = sym_cc * rl_cc ^ crl;
+        sym_cc = sym_cc * rl_cc ^ crl;
+        sym_cc = sym_cc * rl_cc ^ crl;
+        sym_cc = sym_cc * surf_cc ^ curf;
+        table[c] = sym_cc;
+    }
+    return table;
+}
 }; // namespace Cube 333

@@ -26,17 +26,4 @@ struct HTM {
 };
 
 Sequence<Move> make_sequence(const std::string);
-
-// constexpr unsigned N_ROTATIONS = 9;
-// std::ostream &operator<<(std::ostream &os, const Rotation &rot) {
-//     static std::string rot_str[N_ROTATIONS]{"x",  "x2", "x'", "y", "y2",
-//                                     "y'", "z",  "z2", "z'"};
-//     os << rot_str[rot];
-//     return os;
-// }
-// enum Rotation { x, x2, x3, y, y2, y3, z, z2, z3 };
-
-// Rotation inverse_of_rotations[N_ROTATIONS]{
-//     [x] = x3, [x2] = x2, [x3] = x,  [y] = y3, [y2] = y2,
-//     [y3] = y, [z] = z3,  [z2] = z2, [z3] = z};
 };

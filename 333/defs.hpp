@@ -11,7 +11,7 @@ namespace Cube333 {
 static constexpr Permutation<NC> SURF_cp {DRF, URF, ULF, DLF, DRB, URB, ULB, DLB};
 static constexpr Permutation<NC> y_cp {URF, URB, ULB, ULF, DRF, DRB, DLB, DLF};
 static constexpr Permutation<NC> z2_cp {DRF, DLF, DLB, DRB, URF, ULF, ULB, URB};
-static constexpr Permutation<NC> RL_mirror_cp {URF, ULF, ULB, URB, DRF, DLF, DLB, DRB};
+static constexpr Permutation<NC> rl_cp {URF, ULF, ULB, URB, DRF, DLF, DLB, DRB};
 
 static constexpr Permutation<NC> U_cp{URF, URB, ULB, ULF, DLF, DRF, DRB, DLB};
 static constexpr Permutation<NC> R_cp = U_cp.get_conjugate(SURF_cp);
@@ -32,6 +32,9 @@ static constexpr Permutation<NC> CPs[N_HTM_MOVES] {
 // CORNERS : orientations
 static constexpr Orientation<NC, 3> SURF_co {2, 1, 2, 1, 1, 2, 1, 2};
 static constexpr Orientation<NC, 3> SURF2_co = (SURF_co * SURF_cp) + SURF_co;
+static constexpr Orientation<NC, 3> y_co {0, 0, 0, 0, 0, 0, 0, 0};
+static constexpr Orientation<NC, 3> z2_co {0, 0, 0, 0, 0, 0, 0, 0};
+static constexpr Orientation<NC, 3> rl_co {0, 0, 0, 0, 0, 0, 0, 0};
 static constexpr Orientation<NC, 3> R_co = (SURF2_co * U_cp * SURF_cp) + SURF_co;
 static constexpr Orientation<NC, 3> F_co = (SURF_co * U_cp * SURF_cp.get_inverse()) + SURF2_co;
 static constexpr Orientation<NC, 3> L_co = R_co * z2_cp;
@@ -62,7 +65,7 @@ static constexpr Orientation<NC, 3> COs[N_HTM_MOVES] {
 static constexpr Permutation<NE> SURF_ep {RF, UF, LF, DF, DR, UR, UL, DL, RB, UB, LB, DB};
 static constexpr Permutation<NE> y_ep {UR, UB, UL, UF, RF, RB, LB, LF, DR, DB, DL, DF};
 static constexpr Permutation<NE> z2_ep {DF, DL, DB, DR, RF, LF, LB, RB, UF, UL, UB, UR};
-static constexpr Permutation<NE> RL_mirror_ep {UF, UL, UB, UR, RF, LF, LB, RB, DF, DL, DB, DR};
+static constexpr Permutation<NE> rl_ep {UF, UL, UB, UR, RF, LF, LB, RB, DF, DL, DB, DR};
 
 static constexpr Permutation<NE> U_ep {UR, UB, UL, UF, LF, RF, RB, LB, DF, DR, DB, DL};
 static constexpr Permutation<NE> R_ep = U_ep.get_conjugate(SURF_ep);
@@ -83,6 +86,9 @@ static constexpr Permutation<NE> EPs[N_HTM_MOVES] {
 // EDGES : orientations
 static constexpr Orientation<NE> SURF_eo {0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1};
 static constexpr Orientation<NE> SURF2_eo = (SURF_eo * SURF_ep) + SURF_eo;
+static constexpr Orientation<NE> y_eo {0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0};
+static constexpr Orientation<NE> z2_eo {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+static constexpr Orientation<NE> rl_eo {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 static constexpr Orientation<NE> R_eo = (SURF2_eo * U_ep * SURF_ep) + SURF_eo;
 static constexpr Orientation<NE> F_eo = (SURF_eo * U_ep * SURF_ep.get_inverse()) + SURF2_eo;
 static constexpr Orientation<NE> L_eo = R_eo * z2_ep;

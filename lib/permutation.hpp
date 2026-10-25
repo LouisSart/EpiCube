@@ -518,6 +518,14 @@ struct Orientation : std::array<unsigned, N> {
         }
     }
 
+    void complement() {
+        // replace every orientation with it's symmetrical mod v
+        // useful for some symmetry computations like mirroring
+        for (unsigned k = 0; k < N; ++k){
+            (*this)[k] = (v - (*this)[k]) % v;
+        }
+    }
+
     void random_state(const bool even = false) {
         srand(time(0));
         unsigned p = 0;
