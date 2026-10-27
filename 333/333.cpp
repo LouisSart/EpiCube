@@ -81,8 +81,15 @@ Move HTM::str_to_move(const std::string& s) {
     return str_map[s];
 }
 
-Sequence<Move> make_sequence(const std::string str_in) {
+Sequence<Move> make_sequence(std::string str_in) {
     Sequence<Move> ret;
+
+    if (str_in[0] == '(') {  // Turn on inverse flag if alg starts with '('
+        assert(str_in.back() == ')');
+        ret.inv_flag = true;
+        str_in = std::string(str_in.begin() + 1, str_in.end() - 1);
+    }
+
     std::istringstream f(str_in);
     std::string s;    
     while (std::getline(f, s, ' ')) {
@@ -115,8 +122,16 @@ void CubieCube::apply(const Move& m) {
 }
 
 void CubieCube::apply(const Sequence<Move> &seq) {
-    for (Move m : seq) {
-        apply(m);
+    if (!seq.inv_flag) {
+        for (Move m : seq) {
+            apply(m);
+        }
+    } else {
+        CubieCube tmp;
+        for (Move m : seq) {
+            tmp.apply(m);
+        }
+        *this = tmp.get_inverse() * (*this);
     }
 };
 

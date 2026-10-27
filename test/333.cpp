@@ -152,36 +152,11 @@ void test_move_permutation() {
 void test_symmetries() {
     // Testing that S^-1 * c * S * m == S^-1 * (c * m') * S
     // with c a random CubieCube for all S, m
-    CubieCube random;
-    // CubieCube random = CubieCube::random_state();
-    CubieCube check = random;
-    
-    // **************** TEMP ************
-    for (unsigned s : {symmetry_index(0, 0, 0, 1),
-                    symmetry_index(0, 0, 1, 0),
-                    symmetry_index(0, 1, 0, 0),
-                    symmetry_index(1, 0, 0, 0)}) {
-        for (Move m : HTM::moves) {
-            print("***************************");
-            print(s, m, move_conj(m, s));
-            CubieCube cc1 = random.get_conjugate(s);
-            cc1.apply(move_conj(m, s));
-
-            CubieCube cc2 = random;
-            cc2.apply(m);
-            cc2 = cc2.get_conjugate(s);
-
-            assert(cc1 == cc2);
-        }
-    }
-    // ********************** TEMP *********************
+    CubieCube random = CubieCube::random_state();
 
     for (unsigned s = 0; s < N_SYM; ++s) {
         auto [c_surf, c_y, c_z2, c_lr] = symmetry_index_to_num(s);
-        print(c_surf, c_y, c_z2, c_lr);
         for (Move m : HTM::moves) {
-            print("***************************");
-            print(s, m, move_conj(m, s));
             CubieCube cc1 = random.get_conjugate(s);
             cc1.apply(move_conj(m, s));
 
@@ -205,6 +180,30 @@ void test_combinations() {
     }
 }
 
+
+void test_algorithm() {
+    auto alg = make_sequence("(R U R' U' R' F R2 U' R' U' R U R' F')");
+    assert(alg.size() == 14);
+    assert(alg.inv_flag == true);
+    assert(alg.back() == F3);
+
+    auto alg2 = Sequence<Move>({R, U, R3, U3, R3, F, R2, U3, R3, U3, R, U, R3, F3});
+    assert(alg2.size() == 14);
+    assert(alg2.inv_flag == false);
+    assert(alg2.back() == F3);
+}
+
+void test_apply() {
+    auto cube = CubieCube();
+
+    cube.apply(make_sequence("R U R' F' U2 L' U' L F U2"));
+    assert(cube.is_solved());
+
+    cube.apply(make_sequence("R' U' L2 B2 R' D' U2 F R F"));
+    cube.apply(make_sequence("(R' U' L2 B2 R' D' U2 F R F)"));
+    assert(cube.is_solved());
+}
+
 int main() {
     test_move_apply();
     test_copy_constructor();
@@ -216,6 +215,8 @@ int main() {
     test_move_translation();
     test_move_permutation();
     test_symmetries();
-    // test_combinations();
+    test_combinations();
+    test_algorithm();
+    test_apply();
     return 0;
 }
