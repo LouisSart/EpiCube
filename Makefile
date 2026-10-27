@@ -14,18 +14,18 @@ LIB := $(wildcard $(LIB_DIR)/*.hpp) # Tous les fichiers headers de lib
 permutation: obj $(LIB)
 	$(CXX) $(STD) $(OPT) $(INC) $(TEST_DIR)/permutation_test.cpp -o $(OBJ_DIR)/permutation
 
-222: $(TEST_DIR)/222.cpp $(OBJ_DIR)/222.o
+222: obj $(TEST_DIR)/222.cpp $(OBJ_DIR)/222.o
 	$(CXX) $(STD) $(OPT) $(INC) -c $(TEST_DIR)/222.cpp -o $(OBJ_DIR)/222_test.o
 	$(CXX) $(STD) $(OPT) $(INC) $(OBJ_DIR)/222.o  $(OBJ_DIR)/222_test.o -o $(OBJ_DIR)/222_test
 
-$(OBJ_DIR)/222.o: $(LIB) $(222SRC)
+$(OBJ_DIR)/222.o: obj $(LIB) $(222SRC)
 	$(CXX) $(STD) $(OPT) $(INC) -c $(222SRC) -o $(OBJ_DIR)/222.o
 
-333: $(TEST_DIR)/333.cpp $(OBJ_DIR)/333.o
+333: obj $(TEST_DIR)/333.cpp $(OBJ_DIR)/333.o
 	$(CXX) $(STD) $(OPT) $(INC) -c $(TEST_DIR)/333.cpp -o $(OBJ_DIR)/333_test.o
 	$(CXX) $(STD) $(OPT) $(INC) $(OBJ_DIR)/333.o  $(OBJ_DIR)/333_test.o -o $(OBJ_DIR)/333_test
 
-$(OBJ_DIR)/333.o: $(LIB) $(333SRC)
+$(OBJ_DIR)/333.o: obj $(LIB) $(333SRC)
 	$(CXX) $(STD) $(OPT) $(INC) -c $(333SRC) -o $(OBJ_DIR)/333.o
 
 .PHONY: all clean
