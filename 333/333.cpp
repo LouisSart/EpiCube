@@ -195,10 +195,9 @@ CubieCube operator*(const CubieCube &c1, const CubieCube &c2) {
 }
 
 CubieCube operator^(const CubieCube &c1, const unsigned n) {
-    assert(n > 0);
     CubieCube ret;
-    for (unsigned k = 0; k < n - 1; ++k) {
-        ret = ret * ret;
+    for (unsigned k = 0; k < n; ++k) {
+        ret = ret * c1;
     }
     return ret;
 }
@@ -242,21 +241,21 @@ std::tuple<unsigned, unsigned, unsigned, unsigned> symmetry_index_to_num(const u
 }
 
 auto get_move_permutation(const unsigned &sym_index) {
-    Permutation<N_HTM_MOVES> ret {U, U2, U3, D, D2, D3, R, R2, R3,
+    Permutation<N_HTM_MOVES> ret = {U, U2, U3, D, D2, D3, R, R2, R3,
                                          L, L2, L3, F, F2, F3, B, B2, B3};
     auto [c_surf, c_y, c_z2, c_lr] = symmetry_index_to_num(sym_index);
 
     for (unsigned k_lr = 0; k_lr < c_lr; ++k_lr) {
-        ret = ret * LR_mirror_move_conj;
+        ret = LR_mirror_move_conj * ret;
     }
     for (unsigned k_z2 = 0; k_z2 < c_z2; ++k_z2) {
-        ret = ret * z2_move_conj;
+        ret = z2_move_conj * ret;
     }
     for (unsigned k_y = 0; k_y < c_y; ++k_y) {
-        ret = ret * y_move_conj;
+        ret = y_move_conj * ret;
     }
     for (unsigned k_surf = 0; k_surf < c_surf; ++k_surf) {
-        ret = ret * S_URF_move_conj;
+        ret = S_URF_move_conj * ret;
     }
 
     return ret;
@@ -368,7 +367,10 @@ auto make_sym_comb_table() {
 
 unsigned sym_combine(const unsigned &s1, const unsigned &s2) {
     // return the coordinate of the symmetry s = s1 o s2
+
+    // Takes 3ms on my computer
     static const std::array<unsigned, N_SYM * N_SYM> sym_comb_table = make_sym_comb_table();
+    // I don't think its worth making a local copy of the table
 
     return sym_comb_table[s1 * N_SYM + s2];
 }
@@ -386,12 +388,27 @@ std::array<CubieCube, N_SYM> make_cubie_cube_sym_table() {
     for (unsigned c = 0; c < N_SYM; ++c) {
         auto [curf, cy, cz2, crl] = symmetry_index_to_num(c);
         CubieCube sym_cc;
-        sym_cc = sym_cc * rl_cc ^ crl;
-        sym_cc = sym_cc * rl_cc ^ crl;
-        sym_cc = sym_cc * rl_cc ^ crl;
-        sym_cc = sym_cc * surf_cc ^ curf;
+        sym_cc = sym_cc * (rl_cc ^ crl);
+        sym_cc = sym_cc * (z2_cc ^ cz2);
+        sym_cc = sym_cc * (y_cc ^ cy);
+        sym_cc = sym_cc * (surf_cc ^ curf);
         table[c] = sym_cc;
+        if (c > 0) assert(!sym_cc.is_solved());
     }
     return table;
+}
+
+CubieCube CubieCube::get_conjugate(const unsigned &c) const {
+    static auto sym_cubes = make_cubie_cube_sym_table();
+    CubieCube sym_cc = sym_cubes[c];
+    bool mirror = c % N_LR; // true if symmetry includes mirroring
+    if (c > 0) assert(!sym_cc.is_solved());
+    CubieCube ret = sym_cc.get_inverse();
+    // RL mirroring doesn't behave like a legal move application
+    if (mirror) ret.co.complement();
+    ret = ret * (*this);
+    if (mirror) ret.co.complement();
+    ret = ret * sym_cc;
+    return ret;
 }
 }; // namespace Cube 333
