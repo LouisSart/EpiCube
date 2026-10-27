@@ -2,6 +2,7 @@
 #include <algorithm>   // std::fill, std::all_of
 #include <filesystem>  // locate table files
 #include <fstream>     // write tables into files
+#include <functional>     // std::function
 #include <memory>      // std::shared_ptr
 #include <cassert>     // assert
 #include "utils.hpp"
@@ -15,7 +16,7 @@ struct MoveTable {
     MoveTable() { std::fill(table.get(), table.get() + N, N); }
 
     template <typename Cube, bool verbose = false>
-    void compute(unsigned (*index)(const Cube&), void (*from_index)(const unsigned&, Cube&), const auto moves) {
+    void compute(std::function<unsigned(const Cube&)> index, std::function<void(const unsigned&, Cube&)> from_index, const auto moves) {
         // index : a function that takes in a Cube instance and returns
         // some coordinate for it
         // from_index : a function that takes in a
@@ -49,27 +50,16 @@ struct MoveTable {
     }
 
     template<typename Move>
-    void apply(const Move &m, unsigned &c) { c = table[c * NMOVES + m]; }
+    void apply(const Move &m, unsigned &c) { 
+        assert(c < N);
+        assert((unsigned)m < NMOVES);
+        c = table[c * NMOVES + m]; }
 
     bool load(fs::path table_path) {
-        if (fs::exists(table_path)) {
-            std::ifstream istrm(table_path, std::ios::binary);
-            istrm.read(reinterpret_cast<char *>(table.get()),
-                       sizeof(unsigned) * N * NMOVES);
-            istrm.close();
-            assert(is_filled());
-            return true;
-        } else {
-            print("Move table not found at: ", table_path);
-        }
-        return false;
+        return load_table<N * NMOVES, unsigned>(table.get(), table_path);
     }
 
     void write(fs::path table_path) const {
-        fs::create_directories(table_path.parent_path());
-        std::ofstream file(table_path, std::ios::binary);
-        file.write(reinterpret_cast<const char *>(table.get()),
-                   sizeof(unsigned) * N * NMOVES);
-        file.close();
+        write_table<N * NMOVES, unsigned>(table.get(), table_path);
     }
 };

@@ -1,4 +1,5 @@
 #include "../lib/move.hpp"
+#include "../lib/move_table.hpp"
 #include "../333/cubie_cube.hpp"
 #include "../333/defs.hpp"
 #include "../333/move.hpp"
@@ -204,6 +205,39 @@ void test_apply() {
     assert(cube.is_solved());
 }
 
+void test_move_table() {
+    constexpr unsigned N = factorial(NC);
+    MoveTable<N, N_HTM_MOVES> move_table;
+
+    auto index = [](const CubieCube &cc) { return cc.cp.index(); };
+    auto from_index = [](const unsigned &c, CubieCube& cc) {
+        cc.cp.set_from_index(c);
+    };
+
+    move_table.compute<CubieCube>(index, from_index, HTM::moves);
+    move_table.write("obj/mtable");
+    assert(move_table.is_filled());
+
+    CubieCube cc;
+    unsigned c = 0;
+    for (Move m : HTM::moves) {
+        cc.apply(m);
+        move_table.apply(m, c);
+        assert(c == index(cc));
+    }
+
+    MoveTable<N, N_HTM_MOVES> loaded_move_table;
+    assert(loaded_move_table.load("obj/mtable"));
+
+    // Check that the loaded table is the same as the original
+    for (unsigned c = 0; c < N; ++c) {
+        for (Move m : HTM::moves) {
+            assert(move_table.table[c * N_HTM_MOVES + m] ==
+                   loaded_move_table.table[c * N_HTM_MOVES + m]);
+        }
+    }
+}
+
 int main() {
     test_move_apply();
     test_copy_constructor();
@@ -218,5 +252,6 @@ int main() {
     test_combinations();
     test_algorithm();
     test_apply();
+    test_move_table();
     return 0;
 }
