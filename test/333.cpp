@@ -1,6 +1,7 @@
 #include "../lib/move.hpp"
 #include "../lib/move_table.hpp"
 #include "../lib/pruning_table.hpp"
+#include "../lib/search.hpp"
 #include "../333/cubie_cube.hpp"
 #include "../333/defs.hpp"
 #include "../333/move.hpp"
@@ -279,12 +280,13 @@ void test_generate() {
         cc.cp.set_from_index(coord);
     };
 
-    pt.generate<CubieCube, true>(index, from_index, HTM::moves, 4, 6);
+    pt.generate<CubieCube, false>(index, from_index, HTM::moves, 4, 6);
     assert(pt.is_filled());
 
-    pt.write("pruning_tables/all_corners.dat");
+    fs::path tmp {"tmp/"};
+    pt.write(tmp / "corners.dat");
     PruningTable<N> reload;
-    bool check = reload.load("pruning_tables/all_corners.dat");
+    bool check = reload.load(tmp / "corners.dat");
 
     assert(check);
 
@@ -293,7 +295,38 @@ void test_generate() {
         assert(reload.estimate(i) == pt.estimate(i));
     }
 
-    // pt.show_distribution();
+    fs::remove_all(tmp);
+}
+
+
+bool is_solved(const CubieCube &cube) { return cube.is_solved(); }
+unsigned estimate(const CubieCube &cube) {
+    if (cube.is_solved())
+        return 0;
+    else
+        return 1;
+}
+
+std::vector<Move> custom_directions(const Node<CubieCube>::sptr node) {
+    return {U, U2, U3, R, R2, R2, F, F2, F3};
+}
+
+void test_overloads() {
+    auto state = CubieCube();
+    state.apply(make_sequence("R' U' F"));
+    auto root = make_root(state);
+    auto root_inverse = make_root(state.get_inverse(), true);
+
+    // Multiple starting positions
+    auto solutions =
+        IDAstar<false, CubieCube>({root, root_inverse}, estimate, is_solved, custom_directions);
+
+    for (auto sol : solutions) {
+        sol->get_path<Move>();
+    }
+
+    // Single starting position
+    solutions = IDAstar<false, CubieCube>(root, estimate, is_solved, custom_directions);
 }
 
 int main() {
@@ -313,5 +346,6 @@ int main() {
     test_move_table();
     test_api();
     test_generate();
+    test_overloads();
     return 0;
 }
