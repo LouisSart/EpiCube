@@ -307,8 +307,17 @@ unsigned estimate(const CubieCube &cube) {
         return 1;
 }
 
-std::vector<Move> custom_directions(const Node<CubieCube>::sptr node) {
-    return {U, U2, U3, R, R2, R2, F, F2, F3};
+std::deque<Node<CubieCube>::sptr> expand(Node<CubieCube>::sptr node) {
+    auto directions = allowed_next((Move)(node->last_move));
+    std::deque<Node<CubieCube>::sptr> children;
+    CubieCube next;
+    for (auto &&move : directions) {
+        next = node->state;
+        next.apply(move);
+        children.emplace_back(new Node(
+            next, node->depth + 1, node->shared_from_this(), node->inverse, move));
+    }
+    return children;
 }
 
 void test_overloads() {
@@ -319,14 +328,14 @@ void test_overloads() {
 
     // Multiple starting positions
     auto solutions =
-        IDAstar<false, CubieCube>({root, root_inverse}, estimate, is_solved, custom_directions);
+        IDAstar<false, CubieCube>({root, root_inverse}, estimate, is_solved, expand);
 
     for (auto sol : solutions) {
         sol->get_path<Move>();
     }
 
     // Single starting position
-    solutions = IDAstar<false, CubieCube>(root, estimate, is_solved, custom_directions);
+    solutions = IDAstar<false, CubieCube>(root, estimate, is_solved, expand);
 }
 
 int main() {
