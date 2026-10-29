@@ -1,6 +1,8 @@
 #pragma once
+#include <deque> // expand
 #include "../lib/utils.hpp"
 #include "../lib/permutation.hpp"
+#include "../lib/node.hpp"
 #include "cubie.hpp"
 #include "move.hpp"
 
@@ -34,4 +36,5 @@ struct CubieCube {
 bool operator==(const CubieCube &, const CubieCube &);
 CubieCube operator*(const CubieCube &, const CubieCube &);
 CubieCube operator^(const CubieCube &, const CubieCube &);
+std::deque<Node<CubieCube>::sptr> expand(Node<CubieCube>::sptr);
 }; // namespace Cube333

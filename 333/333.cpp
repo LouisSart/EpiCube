@@ -1,6 +1,5 @@
 #include <iostream>       // std::cout << Move
 #include <sstream>        // std::isstream
-#include "move.hpp"
 #include "cubie_cube.hpp"
 #include "defs.hpp"
 #include "symmetry.hpp"
@@ -215,6 +214,20 @@ CubieCube operator^(const CubieCube &c1, const unsigned n) {
         ret = ret * c1;
     }
     return ret;
+}
+
+std::deque<Node<CubieCube>::sptr> expand(Node<CubieCube>::sptr node) {
+    // default expansion function for CubieCube
+    auto directions = allowed_next((Move)(node->last_move));
+    std::deque<Node<CubieCube>::sptr> children;
+    CubieCube next;
+    for (auto &&move : directions) {
+        next = node->state;
+        next.apply(move);
+        children.emplace_back(new Node(
+            next, node->depth + 1, node->shared_from_this(), node->inverse, move));
+        }
+        return children;
 }
 
 // SYMMETRY INDEX

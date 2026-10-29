@@ -307,19 +307,6 @@ unsigned estimate(const CubieCube &cube) {
         return 1;
 }
 
-std::deque<Node<CubieCube>::sptr> expand(Node<CubieCube>::sptr node) {
-    auto directions = allowed_next((Move)(node->last_move));
-    std::deque<Node<CubieCube>::sptr> children;
-    CubieCube next;
-    for (auto &&move : directions) {
-        next = node->state;
-        next.apply(move);
-        children.emplace_back(new Node(
-            next, node->depth + 1, node->shared_from_this(), node->inverse, move));
-    }
-    return children;
-}
-
 void test_overloads() {
     auto state = CubieCube();
     state.apply(make_sequence("R' U' F"));
