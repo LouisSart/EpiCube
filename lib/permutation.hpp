@@ -408,6 +408,21 @@ struct Permutation : std::array<unsigned, N> {
             }
         }
     }
+
+    template<long unsigned M>
+    void set_from_partial_index(const unsigned &c, const Layout<N, M> &l, const std::array<unsigned, M> &pieces) {
+        Permutation<M> p(c);
+
+        unsigned k = 0;
+        for (unsigned i = 0; i < N; ++i) {
+            if (l[i] == 1) {
+                (*this)[i] = pieces[p[k]];
+                ++k;
+            } else {
+                (*this)[i] = N;
+            }
+        }
+    }
 };
 
 template<unsigned N>
@@ -498,6 +513,35 @@ struct Orientation : std::array<unsigned, N> {
         }
         if (even) {
             (*this)[n] = (v - (s % v)) % v;
+        }
+    }
+
+    template<unsigned M>
+    Orientation<M, v> get_sub_orientation(const Layout<N, M> &l) {
+        static_assert(M < N);
+        Orientation<M, v> ret;
+        unsigned i = 0;
+        for (unsigned k = 0; k < N; ++k) {
+            if (l[k] == 1) {
+                ret[i] = (*this)[k];
+                ++i;
+            }
+        }
+        return ret;
+    }
+
+    template<long unsigned M>
+    void set_from_partial_index(const unsigned &c, const Layout<N, M> &l) {
+        static_assert(M < N);
+        assert(c < Orientation<M>::CARD);
+
+        Orientation<M> o(c);
+        unsigned i = 0;
+        for (unsigned k = 0; k < N; ++k) {
+            if (l[k] == 1) {
+                (*this)[k] = o[i];
+                ++i;
+            }
         }
     }
 
