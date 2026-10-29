@@ -15,9 +15,9 @@ auto edge_3_cycle = make_sequence("R L' U2 R' L F2");
 auto random_moves = make_sequence("R F' U D' U R B' U' R' D' F2 L2");
 
 void test_move_apply() {
-    auto cube = CubieCube();
+    // constructor test with literal string (no effect)
+    auto cube = CubieCube("R U R' F' U2 L' U' L F U2");
 
-    cube.apply(no_effect);
     assert(cube.is_solved());
     cube.apply(Tperm);
     cube.apply(Tperm);

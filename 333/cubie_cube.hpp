@@ -15,7 +15,7 @@ struct CubieCube {
     CubieCube(
         const Permutation<NC> &, const Orientation<NC, 3> &,
         const Permutation<NE> &, const Orientation<NE, 2> &);
-    CubieCube(const Sequence<Move> &);
+    explicit CubieCube(const Sequence<Move> &);
     CubieCube(const std::string &);
     
     void corner_apply(const Move&);

@@ -10,7 +10,7 @@ struct Sequence : std::vector<Move> {
     bool inv_flag = 0;
 
     Sequence() {};
-    template<typename... Args>
+    template<typename... Args> requires (std::same_as<Args, Move> && ...) // Only use this with parameter packs of type 'Move'
     Sequence(Args... args) : std::vector<Move>{{ args... }} {} // Constructeur par brace-enclosed
     
     void show(const bool show_length=true, const bool line_break=true) const {
