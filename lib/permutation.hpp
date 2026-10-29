@@ -108,7 +108,7 @@ void random_shuffle(std::array<unsigned, N> &a) {
     }
 }
 
-template <unsigned N, unsigned M>
+template<long unsigned N, long unsigned M>
 struct Layout : std::array<unsigned, N> {
     // holds the positions of M elements amongst
     // N positions regardless of order
@@ -160,7 +160,7 @@ struct Layout : std::array<unsigned, N> {
     }
 };
 
-template<unsigned N>
+template<long unsigned N>
 struct Permutation : std::array<unsigned, N> {
 
     constexpr Permutation() { // Constructeur sans arguments
@@ -299,7 +299,7 @@ struct Permutation : std::array<unsigned, N> {
         }
     }
 
-    template<unsigned M>
+    template<long unsigned M>
     Permutation<M> get_sub_permutation() const {
         // returns the sub permutation for values
         // 0 to M - 1
@@ -315,7 +315,7 @@ struct Permutation : std::array<unsigned, N> {
         return ret;
     }
 
-    template<unsigned M>
+    template<long unsigned M>
     Permutation<M> get_sub_permutation_complement() const {
         // returns the sub permutation for values
         // M to N - 1
@@ -348,7 +348,7 @@ struct Permutation : std::array<unsigned, N> {
         return ret;
     }
 
-    template<unsigned M = N / 2>
+    template<long unsigned M = N / 2>
     std::array<unsigned, 3> split_indices() const {
         // split the Permutation in two splits
         // return the layout coordinate for the first set
@@ -366,7 +366,7 @@ struct Permutation : std::array<unsigned, N> {
         return {l.index(), p1.index(), p2.index()};
     }
 
-    template<unsigned M = N / 2>
+    template<long unsigned M = N / 2>
     void set_from_split_indices(unsigned cl, unsigned c1, unsigned c2) {
         Layout<N, M> l(cl);
         Permutation<M> p1(c1);
@@ -389,10 +389,10 @@ struct Permutation : std::array<unsigned, N> {
         static_assert(M < N);
         Layout<N, M> l(*this, pieces);
         Permutation<M> p = get_sub_permutation<M>(pieces);
-        
+
         return l.index() * p.cardinality() + p.index();
     }
-    
+
     template<long unsigned M>
     void set_from_partial_index(const unsigned &c, const std::array<unsigned, M> &pieces) {
         Permutation<M> p(c % Permutation<M>::CARD);
@@ -425,14 +425,14 @@ struct Permutation : std::array<unsigned, N> {
     }
 };
 
-template<unsigned N>
+template<long unsigned N>
 constexpr Permutation<N> operator*(const Permutation<N> &p1, const Permutation<N> &p2) {
     auto ret = p1;
     ret.compose(p2);
     return ret;
 }
 
-template<unsigned N>
+template<long unsigned N>
 bool operator==(const Permutation<N> &p1, const Permutation<N> &p2) {
     for (unsigned k = 0; k < N; ++k) {
         if (p1[k] != p2[k]) return false;
@@ -440,7 +440,7 @@ bool operator==(const Permutation<N> &p1, const Permutation<N> &p2) {
     return true;
 }
 
-template<typename array_t, unsigned N>
+template<typename array_t, long unsigned N>
 constexpr void permute(array_t &items, const Permutation<N> &perm) {
     auto buf = items;
     for (unsigned k = 0; k < N; ++k){
@@ -448,7 +448,7 @@ constexpr void permute(array_t &items, const Permutation<N> &perm) {
     }
 }
 
-template<unsigned N, unsigned v = 2>
+template<long unsigned N, unsigned v = 2>
 struct Orientation : std::array<unsigned, N> {
     // array that stores the orientations of N pieces modulo v
 
@@ -516,8 +516,8 @@ struct Orientation : std::array<unsigned, N> {
         }
     }
 
-    template<unsigned M>
-    Orientation<M, v> get_sub_orientation(const Layout<N, M> &l) {
+    template<long unsigned M>
+    Orientation<M, v> get_sub_orientation(const Layout<N, M> &l) const {
         static_assert(M < N);
         Orientation<M, v> ret;
         unsigned i = 0;
@@ -535,7 +535,8 @@ struct Orientation : std::array<unsigned, N> {
         static_assert(M < N);
         assert(c < Orientation<M>::CARD);
 
-        Orientation<M> o(c);
+        Orientation<M> o;
+        o.set_from_index(c);
         unsigned i = 0;
         for (unsigned k = 0; k < N; ++k) {
             if (l[k] == 1) {
@@ -593,7 +594,7 @@ struct Orientation : std::array<unsigned, N> {
     }
 };
 
-template<unsigned N, unsigned v>
+template<long unsigned N, unsigned v>
 constexpr Orientation<N, v> operator+(const Orientation<N, v> &o1, const Orientation<N, v> &o2) {
     Orientation<N, v> ret;
     for (unsigned k = 0; k < N; ++k) {
@@ -602,14 +603,14 @@ constexpr Orientation<N, v> operator+(const Orientation<N, v> &o1, const Orienta
     return ret;
 }
 
-template<unsigned N, unsigned v>
+template<long unsigned N, unsigned v>
 constexpr Orientation<N, v> operator*(const Orientation<N, v> &o, const Permutation<N> &p) {
     Orientation<N, v> ret = o;
     permute(ret, p);
     return ret;
 }
 
-template<unsigned N, unsigned v>
+template<long unsigned N, unsigned v>
 bool operator==(const Orientation<N, v> &o1, const Orientation<N, v> &o2) {
     for (unsigned k = 0; k < N; ++k) {
         if (o1[k] != o2[k]) return false;
@@ -617,7 +618,7 @@ bool operator==(const Orientation<N, v> &o1, const Orientation<N, v> &o2) {
     return true;
 }
 
-template<unsigned N, unsigned M>
+template<long unsigned N, unsigned M>
 struct Center : std::array<unsigned, N> {
     // Holds the position of one color pieces, like the center pieces
     // of an NxNxN cubic puzzle
