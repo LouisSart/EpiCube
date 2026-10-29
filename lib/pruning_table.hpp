@@ -82,12 +82,13 @@ struct PruningTable {
     }
 
     template <typename Cube, bool verbose = false>
-    void generate(unsigned (*index)(const Cube&),
-                  void (*from_index)(const unsigned&, Cube&),
-                  const auto &moves,
-                  unsigned forward_switch_depth = 3,
-                  const unsigned backwards_switch_depth = 7,
-                  unsigned depth_zero_nodes = 0) { // In some cases we want to initialize multiple depth zero nodes beforehand
+    void generate(std::function<unsigned(const Cube&)> index,
+        std::function<void(const unsigned, Cube&)> from_index,
+        const auto &moves,
+        unsigned forward_switch_depth = 3,
+        const unsigned backwards_switch_depth = 7,
+        unsigned depth_zero_nodes = 0) { // In some cases we want to initialize multiple depth zero nodes beforehand
+
         assert(forward_switch_depth < backwards_switch_depth);
 
         distribution = {};
