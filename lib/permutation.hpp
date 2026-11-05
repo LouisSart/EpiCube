@@ -115,16 +115,16 @@ struct Layout : std::array<unsigned, N> {
     static constexpr unsigned filled = 1;
     static constexpr unsigned empty = 0;
 
-    Layout() { // Constructeur sans arguments
+    constexpr Layout() { // Constructeur sans arguments
         static_assert(M < N);
         reset();
     }
 
-    Layout(const unsigned &c) { // Constructeur from index
+    constexpr Layout(const unsigned &c) { // Constructeur from index
         this->set_from_index(c);
     }
 
-    Layout(const std::array<unsigned, N> &p, const std::array<unsigned, M> &pieces) {
+    constexpr Layout(const std::array<unsigned, N> &p, const std::array<unsigned, M> &pieces) {
         for (unsigned k = 0; k < N; ++k) {
             if (std::find(pieces.begin(), pieces.end(), p[k]) != pieces.end()){
                 this->operator[](k) = 1;
@@ -134,14 +134,14 @@ struct Layout : std::array<unsigned, N> {
         }
     }
 
-    void reset() {
+    constexpr void reset() {
         this->fill(empty);
         for (unsigned k = 0; k < M; ++k){
             this->operator[](k) = filled;
         }
     }
 
-    void random_state() {
+    constexpr void random_state() {
         random_shuffle(*this);
     }
 
@@ -151,11 +151,11 @@ struct Layout : std::array<unsigned, N> {
 
     static constexpr unsigned CARD = binomial(N, M);
 
-    unsigned index() const {
+    constexpr unsigned index() const {
         return layout_index(*this, M);
     }
 
-    void set_from_index(const unsigned &c) {
+    constexpr void set_from_index(const unsigned &c) {
         layout_from_index(c, *this, M);
     }
 };
@@ -176,14 +176,14 @@ struct Permutation : std::array<unsigned, N> {
     template<typename... Args>
     constexpr Permutation(Args... args) : std::array<unsigned, N>{{ static_cast<unsigned>(args)... }} {} // Constructeur par brace-enclosed
 
-    void random_state(const bool even = false) {
+    constexpr void random_state(const bool even = false) {
         random_shuffle(*this);
         if (even && parity() != 0) {
             swap(N - 1, N - 2, *this);
         }
     }
 
-    bool is_solved() const {
+    constexpr bool is_solved() const {
         for (unsigned k = 0; k < N; ++k){
             if (this->operator[](k) != k) return false;
         }
@@ -195,7 +195,7 @@ struct Permutation : std::array<unsigned, N> {
     }
     static constexpr unsigned CARD = factorial(N);
 
-    unsigned parity() const {
+    constexpr unsigned parity() const {
         std::set<unsigned> visited;
         unsigned i = 0, swaps = 0;
         while (visited.size() < N) {
@@ -213,7 +213,7 @@ struct Permutation : std::array<unsigned, N> {
         return swaps % 2;
     }
 
-    void reset() {
+    constexpr void reset() {
         for (unsigned k = 0; k < N; ++k){
             this->operator[](k) = k;
         }
@@ -242,7 +242,7 @@ struct Permutation : std::array<unsigned, N> {
         return ret;
     }
 
-    unsigned index(const bool even = false) const {
+    constexpr unsigned index(const bool even = false) const {
         // Compute the lexicographic index of the permutation
         static_assert(N > 0); // empty permutations are a problem
         // If the permutation necessarily has even parity,
@@ -263,7 +263,7 @@ struct Permutation : std::array<unsigned, N> {
         return t;
     }
 
-    void set_from_index(unsigned c, const bool even = false) {
+    constexpr void set_from_index(unsigned c, const bool even = false) {
         // Reconstruct the permutation having index c
         static_assert(N > 0); // empty permutations are a problem
 
@@ -300,7 +300,7 @@ struct Permutation : std::array<unsigned, N> {
     }
 
     template<long unsigned M>
-    Permutation<M> get_sub_permutation() const {
+    constexpr Permutation<M> get_sub_permutation() const {
         // returns the sub permutation for values
         // 0 to M - 1
         static_assert(M < N);
@@ -316,7 +316,7 @@ struct Permutation : std::array<unsigned, N> {
     }
 
     template<long unsigned M>
-    Permutation<M> get_sub_permutation_complement() const {
+    constexpr Permutation<M> get_sub_permutation_complement() const {
         // returns the sub permutation for values
         // M to N - 1
         static_assert(M < N);
@@ -332,7 +332,7 @@ struct Permutation : std::array<unsigned, N> {
     }
 
     template<long unsigned M>
-    Permutation<M> get_sub_permutation(const std::array<unsigned, M> &pieces) const {
+    constexpr Permutation<M> get_sub_permutation(const std::array<unsigned, M> &pieces) const {
         // returns the sub permutation of elements in
         // array pieces
         static_assert(M < N);
@@ -349,7 +349,7 @@ struct Permutation : std::array<unsigned, N> {
     }
 
     template<long unsigned M = N / 2>
-    std::array<unsigned, 3> split_indices() const {
+    constexpr std::array<unsigned, 3> split_indices() const {
         // split the Permutation in two splits
         // return the layout coordinate for the first set
         // as well along the local permutation
@@ -367,7 +367,7 @@ struct Permutation : std::array<unsigned, N> {
     }
 
     template<long unsigned M = N / 2>
-    void set_from_split_indices(unsigned cl, unsigned c1, unsigned c2) {
+    constexpr void set_from_split_indices(unsigned cl, unsigned c1, unsigned c2) {
         Layout<N, M> l(cl);
         Permutation<M> p1(c1);
         Permutation<N - M> p2(c2);
@@ -385,7 +385,7 @@ struct Permutation : std::array<unsigned, N> {
     }
 
     template<long unsigned M>
-    unsigned partial_index(const std::array<unsigned, M> &pieces) const {
+    constexpr unsigned partial_index(const std::array<unsigned, M> &pieces) const {
         static_assert(M < N);
         Layout<N, M> l(*this, pieces);
         Permutation<M> p = get_sub_permutation<M>(pieces);
@@ -394,7 +394,7 @@ struct Permutation : std::array<unsigned, N> {
     }
 
     template<long unsigned M>
-    void set_from_partial_index(const unsigned &c, const std::array<unsigned, M> &pieces) {
+    constexpr void set_from_partial_index(const unsigned &c, const std::array<unsigned, M> &pieces) {
         Permutation<M> p(c % Permutation<M>::CARD);
         Layout<N, M> l(c / Permutation<M>::CARD);
 
@@ -410,7 +410,7 @@ struct Permutation : std::array<unsigned, N> {
     }
 
     template<long unsigned M>
-    void set_from_partial_index(const unsigned &c, const Layout<N, M> &l, const std::array<unsigned, M> &pieces) {
+    constexpr void set_from_partial_index(const unsigned &c, const Layout<N, M> &l, const std::array<unsigned, M> &pieces) {
         Permutation<M> p(c);
 
         unsigned k = 0;
@@ -433,7 +433,7 @@ constexpr Permutation<N> operator*(const Permutation<N> &p1, const Permutation<N
 }
 
 template<long unsigned N>
-bool operator==(const Permutation<N> &p1, const Permutation<N> &p2) {
+constexpr bool operator==(const Permutation<N> &p1, const Permutation<N> &p2) {
     for (unsigned k = 0; k < N; ++k) {
         if (p1[k] != p2[k]) return false;
     }
@@ -463,11 +463,11 @@ struct Orientation : std::array<unsigned, N> {
         return CARD;
     }
 
-    void reset() {
+    constexpr void reset() {
         std::array<unsigned, N>::fill(0);
     }
 
-    unsigned index(const bool even = false) const {
+    constexpr unsigned index(const bool even = false) const {
         // if an Orientation is even, then the total
         // orientation of the pieces is 0 modulo v.
         // In this case the orientation of the last piece
@@ -491,7 +491,7 @@ struct Orientation : std::array<unsigned, N> {
         return ret;
     }
 
-    void set_from_index(unsigned c, const bool even = false) {
+    constexpr void set_from_index(unsigned c, const bool even = false) {
         static_assert(N > 0); // 0 size orientations are a no go
 
         unsigned n;
@@ -517,7 +517,7 @@ struct Orientation : std::array<unsigned, N> {
     }
 
     template<long unsigned M>
-    Orientation<M, v> get_sub_orientation(const Layout<N, M> &l) const {
+    constexpr Orientation<M, v> get_sub_orientation(const Layout<N, M> &l) const {
         static_assert(M < N);
         Orientation<M, v> ret;
         unsigned i = 0;
@@ -531,7 +531,7 @@ struct Orientation : std::array<unsigned, N> {
     }
 
     template<long unsigned M>
-    void set_from_partial_index(const unsigned &c, const Layout<N, M> &l) {
+    constexpr void set_from_partial_index(const unsigned &c, const Layout<N, M> &l) {
         static_assert(M < N);
         assert(c < Orientation<M>::CARD);
 
@@ -546,24 +546,24 @@ struct Orientation : std::array<unsigned, N> {
         }
     }
 
-    bool is_solved() const {
+    constexpr bool is_solved() const {
         for (unsigned k : *this){
             if (k != 0) return false;
         }
         return true;
     }
 
-    void permute(const Permutation<N> &perm) {
+    constexpr void permute(const Permutation<N> &perm) {
         permute(*this, perm);
     }
 
-    void compose(const Orientation<N, v> &ori) {
+    constexpr void compose(const Orientation<N, v> &ori) {
         for (unsigned k = 0; k < N; ++k){
             (*this)[k] = ((*this)[k] + ori[k]) % v;
         }
     }
 
-    void complement() {
+    constexpr void complement() {
         // replace every orientation with it's symmetrical mod v
         // useful for some symmetry computations like mirroring
         for (unsigned k = 0; k < N; ++k){
@@ -571,7 +571,7 @@ struct Orientation : std::array<unsigned, N> {
         }
     }
 
-    void random_state(const bool even = false) {
+    constexpr void random_state(const bool even = false) {
         srand(time(0));
         unsigned p = 0;
         for (unsigned i = 0; i < N - 1; ++i) {
@@ -585,7 +585,7 @@ struct Orientation : std::array<unsigned, N> {
         }
     }
 
-    bool is_even() const {
+    constexpr bool is_even() const {
         unsigned sum = 0;
         for (unsigned k : *this) {
             sum += k;
