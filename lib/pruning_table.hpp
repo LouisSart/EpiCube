@@ -7,6 +7,7 @@
 #include <deque>       // std::deque
 #include <filesystem>  // locate table files
 #include <fstream>     // write tables into files
+#include <functional>  // std::function
 #include <limits>      // std::numeric_limits
 #include <memory>      // std::shared_ptr
 #include "utils.hpp"
