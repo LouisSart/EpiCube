@@ -54,6 +54,17 @@ void orientation_test(){
         O.set_from_index(k, true);
         assert(O.index(true) == k);
     }
+
+    // partial orientation
+    unsigned card = Orientation<3, 4>::CARD;
+    Layout<7, 3> l; l.random_state();
+    Orientation<7, 4> po;
+    Orientation<3, 4> sub_po;
+
+    for (unsigned c = 0; c < card; ++c) {
+        po.set_from_partial_index(c, l);
+        assert(po.get_sub_orientation(l).index() == c);
+    }
 }
 
 void layout_test() {
@@ -95,48 +106,6 @@ int main(int argc, const char* argv[]) {
     layout_test();
     center_test();
     inverse_test();
-
-    // // Test on edge coordinate symmetry
-    // CubieFTO c1, c2;
-    // auto scramble = random_moves(13);
-    // for (auto m : scramble) {
-    //     c1.apply(m);
-    //     c2.apply(zSHIFT[m]);
-    //     EdgeComb ec1(c1.ep.get_conjugate(z_edge)), ec2(c2.ep);
-    //     assert(edge_comb_index(ec2) == edge_comb_index(ec1));
-    // }
-
-    // // Some testing on sequences and moves
-    // auto node = make_root(CubieFTO(), true);
-    // for (unsigned k = 0; k < NMOVES; ++k) {
-    //     node = node->expand(moves)[k];
-    // }
-    // node->get_path<Move>();
-    // auto root = node->get_root();
-    // allowed_next(bL);
-
-    // MoveTable<CORNER_CARD, NMOVES> cmt;
-    // cmt.compute<CubieFTO>(corner_index, corners_from_index, moves);
-
-    // generate_move_tables();
-    // generate_corner_table();
-    // generate_corner_z_shift_table();
-
-    // FTO cube;
-    // for (auto m : seq) {
-    //     cube.apply(m);
-    // }
-    // assert(cube.cp == 0);
-    // assert(cube.e1 == 0);
-    // assert(cube.e2 == 0);
-    // assert(cube.tri1 == 0);
-    // assert(cube.tri2 == 0);
-
-    // FTO cube1, cube2;
-    // cube1.apply(scramble);
-    // for (auto m : scramble) cube2.apply(zSHIFT[m]);
-    // assert(cube1.tri2 == cube2.tri1);
-    // assert(triplet2_index(cube1) == triplet_index(cube2));
 
     return 0;
 }

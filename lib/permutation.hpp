@@ -127,9 +127,9 @@ struct Layout : std::array<unsigned, N> {
     constexpr Layout(const std::array<unsigned, N> &p, const std::array<unsigned, M> &pieces) {
         for (unsigned k = 0; k < N; ++k) {
             if (std::find(pieces.begin(), pieces.end(), p[k]) != pieces.end()){
-                this->operator[](k) = 1;
+                this->operator[](k) = filled;
             } else {
-                this->operator[](k) = 0;
+                this->operator[](k) = empty;
             }
         }
     }
@@ -543,9 +543,9 @@ struct Orientation : std::array<unsigned, N> {
     template<long unsigned M>
     constexpr void set_from_partial_index(const unsigned &c, const Layout<N, M> &l) {
         static_assert(M < N);
-        assert(c < Orientation<M>::CARD);
+        assert((c < Orientation<M, v>::CARD));
 
-        Orientation<M> o;
+        Orientation<M, v> o;
         o.set_from_index(c);
         unsigned i = 0;
         for (unsigned k = 0; k < N; ++k) {
