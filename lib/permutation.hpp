@@ -269,30 +269,40 @@ struct Permutation : std::array<unsigned, N> {
 
         if (even) {
             assert(c < CARD / 2);
-            assert(N > 2); // trivial case do not implement
-            unsigned s = 0;
-            (*this)[N - 1] = 1;
-            (*this)[N - 2] = 0;
-            for (unsigned i = N - 3; i < N; --i) {
-                (*this)[i] = (c % (N - i));
-                s += (*this)[i];
-                c = c / (N - i);
-                for (auto j = i + 1; j < N; ++j) {
-                    if ((*this)[j] >= (*this)[i]) {
-                        (*this)[j] += 1;
+            if constexpr (N == 1) {
+                (*this)[0] = 0;
+            }
+            if constexpr (N == 2) {
+                (*this)[0] = 0;
+                (*this)[1] = 1;
+            }
+            if constexpr (N > 2) { // do not compile N - 3 if N < 2
+                unsigned s = 0;
+                (*this)[N - 1] = 1;
+                (*this)[N - 2] = 0;
+                for (unsigned i = N - 3; i < N; --i) {
+                    (*this)[i] = (c % (N - i));
+                    s += (*this)[i];
+                    c = c / (N - i);
+                    for (auto j = i + 1; j < N; ++j) {
+                        if ((*this)[j] >= (*this)[i]) {
+                            (*this)[j] += 1;
+                        }
                     }
                 }
+                if (s % 2 == 1) swap(N - 1, N - 2, *this);
             }
-            if (s % 2 == 1) swap(N - 1, N - 2, *this);
         } else {
             assert(c < CARD);
             (*this)[N - 1] = 0;
-            for (unsigned i = N - 2; i < N; --i) {
-                (*this)[i] = (c % (N - i));
-                c = c / (N - i);
-                for (auto j = i + 1; j < N; ++j) {
-                    if ((*this)[j] >= (*this)[i]) {
-                        (*this)[j] += 1;
+            if constexpr (N > 1) { // do not compile N - 2 if N < 2
+                for (unsigned i = N - 2; i < N; --i) {
+                    (*this)[i] = (c % (N - i));
+                    c = c / (N - i);
+                    for (auto j = i + 1; j < N; ++j) {
+                        if ((*this)[j] >= (*this)[i]) {
+                            (*this)[j] += 1;
+                        }
                     }
                 }
             }
