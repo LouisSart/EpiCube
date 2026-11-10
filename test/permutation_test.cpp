@@ -99,6 +99,12 @@ void inverse_test() {
     assert(bb.is_solved());
 }
 
+void utils_test() {
+    // simple call done here, I dunno how to test this
+    home_directory();
+    app_data_directory();
+}
+
 int main(int argc, const char* argv[]) {
 
     permutation_test();
@@ -106,6 +112,7 @@ int main(int argc, const char* argv[]) {
     layout_test();
     center_test();
     inverse_test();
+    utils_test();
 
     return 0;
 }

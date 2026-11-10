@@ -5,6 +5,8 @@
 #include <vector>
 #include <chrono>
 #include <filesystem>
+#include <pwd.h>
+#include <unistd.h>
 
 namespace fs = std::filesystem;
 using namespace std::chrono;
@@ -81,4 +83,29 @@ bool load_table(entry_t *data, const fs::path& path) {
         print("Table not found at:", path);
         return false;
     }
+}
+
+// chat GPT code for retrieving system's directories
+// using inline to prevent multiple definitions
+inline std::filesystem::path home_directory() {
+    long n = sysconf(_SC_GETPW_R_SIZE_MAX);
+    std::vector<char> buffer(n > 0 ? static_cast<size_t>(n) : 16384);
+
+    passwd entry{};
+    passwd* result = nullptr;
+    int err = getpwuid_r(getuid(), &entry, buffer.data(), buffer.size(), &result);
+
+    if (err != 0 || result == nullptr || entry.pw_dir == nullptr)
+        throw std::runtime_error("Could not determine home directory");
+
+    return entry.pw_dir;
+}
+
+inline std::filesystem::path app_data_directory() {
+    if (const char* xdg = std::getenv("XDG_DATA_HOME");
+        xdg && *xdg && xdg[0] == '/') {
+        return std::filesystem::path(xdg);
+    }
+
+    return home_directory() / ".local" / "share";
 }
