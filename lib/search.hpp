@@ -1,7 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <cassert>
-#include <deque>
+#include <deque>  // BFS
 #include <functional>
 #include <set>
 
@@ -31,10 +31,10 @@ struct Solutions : public std::vector<typename Node<Cube>::sptr> {
 };
 
 template <bool verbose = false, typename Cube>
-Solutions<Cube> depth_first_search(std::deque<typename Node<Cube>::sptr> queue,
+Solutions<Cube> depth_first_search(Solutions<Cube> queue,
                                       std::function<unsigned(const Cube&)> estimate,
                                       std::function<bool(const Cube&)> is_solved,
-                                      std::function<std::deque<typename Node<Cube>::sptr>(typename Node<Cube>::sptr)> expand,
+                                      std::function<Solutions<Cube>(typename Node<Cube>::sptr)> expand,
                                       const unsigned max_depth = 4) {
     // Main implementation starting from any number of root states
     Solutions<Cube> solutions;
@@ -70,18 +70,18 @@ template <bool verbose = false, typename Cube>
 Solutions<Cube> depth_first_search(const typename Node<Cube>::sptr root,
                                       std::function<unsigned(const Cube&)> estimate,
                                       std::function<bool(const Cube&)> is_solved,
-                                      std::function<std::deque<typename Node<Cube>::sptr>(typename Node<Cube>::sptr)> expand,
+                                      std::function<Solutions<Cube>(typename Node<Cube>::sptr)> expand,
                                       const unsigned max_depth = 4) {
     // Overload for solving a single starting position
-    std::deque<typename Node<Cube>::sptr> queue({root});
+    Solutions<Cube> queue({root});
     return depth_first_search<verbose>(queue, estimate, is_solved,
                                        expand, max_depth);
 }
 
 template <bool verbose = false, typename Cube>
-Solutions<Cube> IDAstar(std::deque<typename Node<Cube>::sptr> roots,
+Solutions<Cube> IDAstar(Solutions<Cube> roots,
                            std::function<unsigned(const Cube&)> estimate, std::function<bool(const Cube&)> is_solved,
-                           std::function<std::deque<typename Node<Cube>::sptr>(typename Node<Cube>::sptr)> expand,
+                           std::function<Solutions<Cube>(typename Node<Cube>::sptr)> expand,
                            const unsigned max_depth = 20,
                            const unsigned slackness = 0) {
     // Main implementation, starting from any number of root nodes
@@ -128,19 +128,17 @@ Solutions<Cube> IDAstar(std::deque<typename Node<Cube>::sptr> roots,
 template <bool verbose = false, typename Cube>
 Solutions<Cube> IDAstar(const typename Node<Cube>::sptr root,
                            std::function<unsigned(const Cube&)> estimate, std::function<bool(const Cube&)> is_solved,
-                           std::function<std::deque<typename Node<Cube>::sptr>(typename Node<Cube>::sptr)> expand,
+                           std::function<Solutions<Cube>(typename Node<Cube>::sptr)> expand,
                            const unsigned max_depth = 20,
                            const unsigned slackness = 0) {
     // Overload for solving a single starting position
-    std::deque<typename Node<Cube>::sptr> queue{root};
+    Solutions<Cube> queue{root};
     return IDAstar<verbose>(queue, estimate, is_solved, expand,
                             max_depth, slackness);
 }
 
 template<typename Cube, typename... Solvers>
 struct MultiStep {
-    using NodePtr = Node<Cube>::sptr;
-
     std::tuple<Solvers...> solvers;
 
     MultiStep(Solvers... s) : solvers{s...}{}
@@ -151,18 +149,12 @@ struct MultiStep {
 
 private:
     template<unsigned I>
-    std::deque<NodePtr> run(const Solutions<Cube> &previous) const {
-        std::deque<NodePtr> current;
-        current.insert(
-            current.end(),
-            std::make_move_iterator(previous.begin()),
-            std::make_move_iterator(previous.end())
-        );
+    Solutions<Cube> run(const Solutions<Cube> &previous) const {
         if constexpr (I == sizeof...(Solvers)) {
-            return current;
+            return previous;
         } else {
             const auto& solver = std::get<I>(solvers);
-            auto solutions = solver.solve(current);
+            auto solutions = solver.solve(previous);
 
             return run<I + 1>(solutions);
         }

@@ -216,10 +216,10 @@ CubieCube operator^(const CubieCube &c1, const unsigned n) {
     return ret;
 }
 
-std::deque<Node<CubieCube>::sptr> expand(Node<CubieCube>::sptr node) {
+Solutions<CubieCube> expand(Node<CubieCube>::sptr node) {
     // default expansion function for CubieCube
     auto directions = allowed_next((Move)(node->last_move));
-    std::deque<Node<CubieCube>::sptr> children;
+    Solutions<CubieCube> children;
     CubieCube next;
     for (auto &&move : directions) {
         next = node->state;
