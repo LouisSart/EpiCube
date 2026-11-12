@@ -187,7 +187,7 @@ CubieCube CubieCube::random_state() {
     cube.co.random_state(true);
     cube.ep.random_state();
     cube.eo.random_state(true);
-    if (cube.ep.parity() != cube.cp.parity()) swap(0, 1, cube.ep);
+    if (cube.ep.parity() != cube.cp.parity()) std::swap(cube.ep[0], cube.ep[1]);
     return cube;
 }
 

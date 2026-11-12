@@ -90,21 +90,12 @@ void layout_from_index(unsigned c, std::array<unsigned, n> &layout,
 }
 
 template<std::size_t N>
-void swap(const unsigned &i, const unsigned &j, std::array<unsigned, N> &a){
-    assert(i < N);
-    assert(j < N);
-    unsigned buf = a[i];
-    a[i] = a[j];
-    a[j] = buf;
-}
-
-template<std::size_t N>
 void random_shuffle(std::array<unsigned, N> &a) {
     // Fisher-Yates shuffle
     srand(time(0));
     for (unsigned i = 0; i < N - 1; ++i) {
         unsigned j = i + rand() % (N - i);
-        swap(i, j, a);
+        std::swap(a[i], a[j]);
     }
 }
 
@@ -179,7 +170,7 @@ struct Permutation : std::array<unsigned, N> {
     constexpr void random_state(const bool even = false) {
         random_shuffle(*this);
         if (even && parity() != 0) {
-            swap(N - 1, N - 2, *this);
+            std::swap((*this)[N - 1], (*this)[N - 2]);
         }
     }
 
@@ -290,7 +281,7 @@ struct Permutation : std::array<unsigned, N> {
                         }
                     }
                 }
-                if (s % 2 == 1) swap(N - 1, N - 2, *this);
+                if (s % 2 == 1) std::swap((*this)[N - 1], (*this)[N - 2]);
             }
         } else {
             assert(c < CARD);
