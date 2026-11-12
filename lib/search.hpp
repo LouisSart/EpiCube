@@ -11,6 +11,10 @@ template <typename Cube>
 struct Solutions : public std::vector<typename Node<Cube>::sptr> {
     unsigned best_hope;
 
+    Solutions() {};
+    template<typename... Args> requires (std::same_as<Args, typename Node<Cube>::sptr> && ...)
+    Solutions(Args... args) : std::vector<typename Node<Cube>::sptr>{{ args... }} {} // Constructeur par brace-enclosed
+
     void sort_by_depth() {
         std::sort(this->begin(), this->end(),
                   [](const Node<Cube>::sptr node1, const Node<Cube>::sptr node2) {
@@ -132,6 +136,38 @@ Solutions<Cube> IDAstar(const typename Node<Cube>::sptr root,
     return IDAstar<verbose>(queue, estimate, is_solved, expand,
                             max_depth, slackness);
 }
+
+template<typename Cube, typename... Solvers>
+struct MultiStep {
+    using NodePtr = Node<Cube>::sptr;
+
+    std::tuple<Solvers...> solvers;
+
+    MultiStep(Solvers... s) : solvers{s...}{}
+
+    auto solve(const Solutions<Cube> &initial){
+        return run<0>(initial);
+    }
+
+private:
+    template<unsigned I>
+    std::deque<NodePtr> run(const Solutions<Cube> &previous) const {
+        std::deque<NodePtr> current;
+        current.insert(
+            current.end(),
+            std::make_move_iterator(previous.begin()),
+            std::make_move_iterator(previous.end())
+        );
+        if constexpr (I == sizeof...(Solvers)) {
+            return current;
+        } else {
+            const auto& solver = std::get<I>(solvers);
+            auto solutions = solver.solve(current);
+
+            return run<I + 1>(solutions);
+        }
+    }
+};
 
 template<typename Cube, typename Move, std::size_t N, bool verbose = false>
 void generate_left_coset_table(std::function<unsigned(const Cube&)> index, std::function<void(const unsigned&, Cube&)> from_index, const std::vector<Sequence<Move>> generators, const auto &moves, std::array<unsigned, N> &table) {
