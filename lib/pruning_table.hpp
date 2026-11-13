@@ -102,7 +102,7 @@ struct PruningTable {
             forward_switch_depth = 0; // No DFS when depth zero is prefilled
         }
         Cube cube;
-        while (fill_depth < forward_switch_depth) {
+        while (fill_depth < forward_switch_depth && node_counter < N) {
             // IDDFS is only fast on the first few layers of the tree.
             nodes = DFS_fill(cube, 0, fill_depth, index, moves);
 
@@ -114,7 +114,7 @@ struct PruningTable {
 
         // bool keep_forward = true; // CHECKME: Is that useful ?
         if constexpr (verbose) print("switch to forwards scan");
-        while (fill_depth < backwards_switch_depth) {
+        while (fill_depth < backwards_switch_depth && node_counter < N) {
             // Forward scan is efficient up to the level with most nodes
             nodes = 0;
             for (unsigned k = 0; k < N; ++k) {
